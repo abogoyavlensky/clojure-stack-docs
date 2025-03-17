@@ -5,7 +5,7 @@ export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col justify-center items-center text-center px-4 py-16 max-w-4xl mx-auto">
       <h1 className="text-5xl font-bold mb-4">
-        <span className="text-[#0e1116]">Welcome to </span>
+        <span className="text-[#0e1116] dark:text-white">Welcome to </span>
         <span className="bg-gradient-to-r from-[#00e5c7] to-[#3e9fff] bg-clip-text text-transparent">Clojure Stack Lite</span>
       </h1>
       
