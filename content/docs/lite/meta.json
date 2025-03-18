@@ -1,0 +1,12 @@
+{
+  "title": "Clojure Stack Lite",
+  "icon": "Feather",
+  "root": true,
+  "pages": [
+    "---Setup---",
+    "index",
+    "tutorial-crud",
+    "---Guide---",
+    "deployment"
+  ]
+}

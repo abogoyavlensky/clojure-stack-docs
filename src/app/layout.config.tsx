@@ -1,4 +1,16 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
+import Logo from '@/public/logo.png';
+import {
+  AlbumIcon,
+  Book,
+  FeatherIcon,
+  Heart,
+  Layout,
+  LayoutTemplate,
+  Pencil,
+  Server,
+} from 'lucide-react';
+
 
 /**
  * Shared layout configurations
@@ -8,18 +20,26 @@ import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
  * Docs Layout: app/docs/layout.tsx
  */
 export const baseOptions: BaseLayoutProps = {
+  githubUrl: "https://github.com/abogoyavlensky/clojure-stack-lite",
   nav: {
-    title: 'Clojure Stack Lite',
+    title: 'Clojure Stack Templates',
   },
   links: [
     {
+      type: 'menu',
       text: 'Documentation',
-      url: '/docs',
-      active: 'nested-url',
-    },
-    {
-      text: 'Blog',
-      url: 'https://bogoyavlensky.com',
-    },
+      url: '/docs/lite',
+      items: [
+        {
+          icon: <FeatherIcon />,
+          text: 'Clojure Stack Lite',
+          description: 'Start new Clojure project with HTMX & AlpineJS',
+          url: '/docs/lite',
+          menu: {
+            className: 'lg:col-start-2',
+          },
+        },
+      ],
+    }
   ],
 };

@@ -18,16 +18,10 @@ export default function HomePage() {
       
       <div className="flex gap-4 mb-8">
         <Link 
-          href="/docs" 
+          href="/docs/lite" 
           className="bg-[#0e1116] text-white px-6 py-2 rounded-md font-medium"
         >
           Get Started
-        </Link>
-        <Link 
-          href="/docs" 
-          className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-md font-medium"
-        >
-          Documentation
         </Link>
       </div>
       

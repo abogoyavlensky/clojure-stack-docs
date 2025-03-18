@@ -1,0 +1,6 @@
+{
+  "title": "Clojure Stack SPA",
+  "root": true,
+  "description": "Run single page app in Clojure and ClojureScript",
+  "icon": "Terminal"
+}
