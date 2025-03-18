@@ -17,5 +17,9 @@ export const baseOptions: BaseLayoutProps = {
       url: '/docs',
       active: 'nested-url',
     },
+    {
+      text: 'Blog',
+      url: 'https://bogoyavlensky.com',
+    },
   ],
 };
