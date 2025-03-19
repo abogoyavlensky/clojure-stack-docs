@@ -19,7 +19,7 @@ export const logo = (
       alt="Clojure Stack Templates"
       src={Logo}
       sizes="100px"
-      className="w-6"
+      className="w-8"
       aria-label="Clojure Stack Templates"
       unoptimized={true}
     />
