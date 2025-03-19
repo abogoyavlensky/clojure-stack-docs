@@ -1,4 +1,5 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
+import Image from 'next/image';
 import Logo from '@/public/logo.png';
 import {
   AlbumIcon,
@@ -12,6 +13,19 @@ import {
 } from 'lucide-react';
 
 
+export const logo = (
+  <>
+    <Image
+      alt="Clojure Stack Templates"
+      src={Logo}
+      sizes="100px"
+      className="w-6"
+      aria-label="Clojure Stack Templates"
+      unoptimized={true}
+    />
+  </>
+);
+
 /**
  * Shared layout configurations
  *
@@ -22,7 +36,15 @@ import {
 export const baseOptions: BaseLayoutProps = {
   githubUrl: "https://github.com/abogoyavlensky/clojure-stack-lite",
   nav: {
-    title: 'Clojure Stack Templates',
+    title: (
+      <>
+        {logo}
+        <span className="font-medium [.uwu_&]:hidden [header_&]:text-[15px]">
+          Clojure Stack Templates
+        </span>
+      </>
+    ),
+    transparentMode: 'top',
   },
   links: [
     {

@@ -1,5 +1,6 @@
 {
   "title": "Clojure Stack Lite",
+  "description": "Clojure project with Server-side Rendering",
   "icon": "Feather",
   "root": true,
   "pages": [
