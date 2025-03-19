@@ -26,20 +26,22 @@ export const baseOptions: BaseLayoutProps = {
   },
   links: [
     {
-      type: 'menu',
       text: 'Documentation',
       url: '/docs/lite',
-      items: [
-        {
-          icon: <FeatherIcon />,
-          text: 'Clojure Stack Lite',
-          description: 'Start new Clojure project with HTMX & AlpineJS',
-          url: '/docs/lite',
-          menu: {
-            className: 'lg:col-start-2',
-          },
-        },
-      ],
+      active: 'nested-url',
+      // TODO: uncomment when ready
+      // type: 'menu',
+      // items: [
+      //   {
+      //     icon: <FeatherIcon />,
+      //     text: 'Clojure Stack Lite',
+      //     description: 'Start new Clojure project with HTMX & AlpineJS',
+      //     url: '/docs/lite',
+      //     menu: {
+      //       className: 'lg:col-start-2',g
+      //     },
+      //   },
+      // ],
     }
   ],
 };
