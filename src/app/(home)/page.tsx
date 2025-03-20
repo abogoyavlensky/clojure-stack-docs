@@ -1,12 +1,11 @@
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col justify-center items-center text-center px-4 py-16 max-w-4xl mx-auto">
       <h1 className="text-5xl font-bold mb-4">
         <span className="text-[#0e1116] dark:text-white">Welcome to </span>
-        <span className="bg-gradient-to-r from-[#00e5c7] to-[#3e9fff] bg-clip-text text-transparent">Clojure Stack Lite</span>
+        <span className="bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent">Clojure Stack Lite</span>
       </h1>
       
       <p className="text-lg mb-8">A lightweight, modern template to jumpstart your Clojure projects</p>

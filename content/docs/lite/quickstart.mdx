@@ -8,7 +8,7 @@ icon: Rocket
 
 1. Create project:
 
-   Change `myproject` to name of you project and run one of two following commands.
+   _Change `myproject` to name of you project and run one of two following commands._
 
    Using [Clojure CLI](https://clojure.org/guides/install_clojure):
 
@@ -17,33 +17,34 @@ icon: Rocket
    clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
    ```
 
-   <Callout type="info">
-     We need specify Clojure version as `1.12.x` as it's a requirement for automatically
-     pointing out latest version of the template without the need to specify it manually.
-   </Callout>
-
    Or alternatively using [neil](https://github.com/babashka/neil):
 
    ```bash
    brew install babashka/brew/neil && \
    neil new io.github.abogoyavlensky/clojure-stack-lite myproject
    ```
-   <Callout type="warn">
+   <Callout type="info">
      At the moment `neil` automatically adds `:neil` alias to `deps.edn` after generating the project.
      So, for now, you might want to delete it manually.
    </Callout>
 
 2. Start development (with [mise](https://mise.jdx.dev/getting-started.html)):
 
+   <Callout type="info">
+     `mise` is just convenient tool to manage system deps in version isolation for different projects.
+     If you want, you can install all required tools manually, consult `.mise.toml` for specific versions.
+   </Callout>
+
    ```shell
    cd myproject
    mise trust && mise install
    bb clj-repl
-   (reset)
+   user=> (reset)
    ```
 
-   The server should be available at `http://localhost:8000`.
-   Check out project's README.md and template documentation for more information on how to use the project.
+   The server should be available at [http://localhost:8000](http://localhost:8000).
+
+![Clojure Stack Lite starter page](@/public/starter.png)
 
 ## Project structure
 
@@ -85,3 +86,17 @@ The generate project will have the following structure:
 ├── LICENSE                # License file, AGPLv3 by default, for motivation check: https://plausible.io/blog/open-source-licenses
 └── README.md              # Project documentation
 ```
+
+## Next steps
+
+As you just generated a new project you might want start building with it straightaway a simple CRUD app to get started,
+or learn more about different part of your project. Choose anything what you prefer!
+
+<Cards>
+    <Card title="First app" href="/docs/lite/first-app">
+      Build your first CRUD application with Clojure Stack Lite
+    </Card>
+    <Card title="Local Development" href="/docs/lite/local-development">
+      Learn how to setup local development environment
+    </Card>
+</Cards>
