@@ -18,7 +18,7 @@ export default function HomePage() {
       
       <div className="flex gap-4 mb-8">
         <Link 
-          href="/docs/lite" 
+          href="/docs/lite/quickstart"
           className="bg-[#0e1116] text-white px-6 py-2 rounded-md font-medium"
         >
           Get Started
