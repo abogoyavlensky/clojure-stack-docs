@@ -6,29 +6,23 @@ icon: Rocket
 
 ## Create application
 
-1. Create project:
+1. Create project.
 
-   _Change `myproject` to name of you project and run one of two following commands._
+   Change `myproject` to name of you project and run:
 
-   Using [Clojure CLI](https://clojure.org/guides/install_clojure):
-
-   ```bash
+   ```shell
    clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new && \
-   clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
+   clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' \
+        -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
    ```
 
-   Or alternatively using [neil](https://github.com/babashka/neil):
+   If you already have Clojure CLI with Clojure `1.12.x` and `deps-new` tool, then you can just run:
 
-   ```bash
-   brew install babashka/brew/neil && \
-   neil new io.github.abogoyavlensky/clojure-stack-lite myproject
+   ```shell
+   clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
    ```
-   <Callout type="info">
-     At the moment `neil` automatically adds `:neil` alias to `deps.edn` after generating the project.
-     So, for now, you might want to delete it manually.
-   </Callout>
 
-2. Start development (with [mise](https://mise.jdx.dev/getting-started.html)):
+2. Start development (with [mise](https://mise.jdx.dev/getting-started.html)).
 
    <Callout type="info">
      `mise` is just convenient tool to manage system deps in version isolation for different projects.
@@ -45,6 +39,14 @@ icon: Rocket
    The server should be available at [http://localhost:8000](http://localhost:8000).
 
 ![Clojure Stack Lite starter page](@/public/starter.png)
+
+### Update Placeholders
+
+Also you might want to edit some details in placeholders before going to production:
+
+- `LABEL` in `Dockerfile` to point out your project's repository for correct image attribution
+- domain in the `id` field of the `resources/public/manifest.json` to install your web app as a PWA
+- update description at `TODO: add project description` in the `README.md`
 
 ## Project structure
 
@@ -92,11 +94,13 @@ The generate project will have the following structure:
 As you just generated a new project you might want start building with it straightaway a simple CRUD app to get started,
 or learn more about different part of your project. Choose anything what you prefer!
 
+import { Play, BookOpenText } from 'lucide-react';
+
 <Cards>
-    <Card title="First app" href="/docs/lite/first-app">
+    <Card title="First app" href="/docs/lite/first-app" icon={<Play />}>
       Build your first CRUD application with Clojure Stack Lite
     </Card>
-    <Card title="Local Development" href="/docs/lite/local-development">
+    <Card title="Local Development" href="/docs/lite/local-development" icon={<BookOpenText />}>
       Learn how to setup local development environment
     </Card>
 </Cards>

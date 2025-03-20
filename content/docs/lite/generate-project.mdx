@@ -1,0 +1,81 @@
+---
+title: Generate Project
+description: Detailed guide on generating project
+---
+
+## Create application
+
+1. Create project.
+
+   Change `myproject` to name of you project and run one of two following commands.
+
+   Using [Clojure CLI](https://clojure.org/guides/install_clojure):
+
+   ```shell
+   clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new && \
+   clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' \
+        -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
+   ```
+
+   If you already have Clojure CLI with Clojure `1.12.x` and `deps-new` tool, then you can just run:
+
+   ```shell
+   clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
+   ```
+
+   OR alternatively using [neil](https://github.com/babashka/neil):
+
+   ```shell
+   brew install babashka/brew/neil && \
+   neil new io.github.abogoyavlensky/clojure-stack-lite myproject
+   ```
+   <Callout type="warn">
+     At the moment `neil` automatically adds `:neil` alias to `deps.edn` after generating the project.
+     So, for now, you might want to delete it manually.
+   </Callout>
+
+2. Start development (with [mise](https://mise.jdx.dev/getting-started.html)).
+
+   <Callout type="info">
+     `mise` is just convenient tool to manage system deps in version isolation for different projects.
+     If you want, you can install all required tools manually, consult `.mise.toml` for specific versions.
+   </Callout>
+
+   ```shell
+   cd myproject
+   mise trust && mise install
+   bb clj-repl
+   user=> (reset)
+   ```
+
+   The server should be available at [http://localhost:8000](http://localhost:8000).
+
+## Options
+
+<Callout type="info">At the moment there are no configuration available for the template.</Callout>
+
+
+## After creating a project
+
+After creating a project you will have a file structure and all configurations for starting development.
+First thing is recommended to do is checking the code formatting, linting, tests and outdated deps.
+You will need [Docker](https://docs.docker.com/engine/install/) installed on your system as tests are running Testcontainers using Docker.
+
+```shell
+bb check
+```
+
+Now we can initiate `git` and commit initial setup:
+
+```shell
+git init
+git add .
+git commit -am 'Initial commit'
+```
+
+Now we can go to Github and [create a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
+to add it as a remote target to your local one:
+
+```shell
+git remote add origin git@github.com:myusername/myproject.git
+```

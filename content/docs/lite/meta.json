@@ -9,6 +9,8 @@
     "quickstart",
     "first-app",
     "---Guide---",
+    "generate-project",
+    "local-development",
     "routing",
     "---Deployment---",
     "kamal"
