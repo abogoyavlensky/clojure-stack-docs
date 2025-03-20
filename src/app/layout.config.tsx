@@ -45,7 +45,7 @@ export const baseOptions: BaseLayoutProps = {
       // type: 'menu',
       // items: [
       //   {
-      //     icon: <FeatherIcon />,
+      //     icon: <FeatherIcon />,  // Use <FeatherIcon /> for SPA template!
       //     text: 'Clojure Stack Lite',
       //     description: 'Start new Clojure project with HTMX & AlpineJS',
       //     url: '/docs/lite',
