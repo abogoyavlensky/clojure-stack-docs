@@ -4,12 +4,13 @@
   "icon": "Feather",
   "root": true,
   "pages": [
-    "---Setup---",
+    "---Getting Started---",
     "index",
     "quickstart",
-    "tutorial-crud",
-    "deployment",
+    "first-app",
     "---Guide---",
-    "routing"
+    "routing",
+    "---Deployment---",
+    "kamal"
   ]
 }

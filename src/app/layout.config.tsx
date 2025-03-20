@@ -1,16 +1,6 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import Image from 'next/image';
 import Logo from '@/public/logo.png';
-import {
-  AlbumIcon,
-  Book,
-  FeatherIcon,
-  Heart,
-  Layout,
-  LayoutTemplate,
-  Pencil,
-  Server,
-} from 'lucide-react';
 
 
 export const logo = (
