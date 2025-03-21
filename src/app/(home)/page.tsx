@@ -23,7 +23,7 @@ export default function HomePage() {
         </Link>
       </div>
 
-      <div className="mb-8 text-start">
+      <div className="mb-8 text-start max-w-3xl">
         <DynamicCodeBlock lang="shell" code={usageExampleCode} />
       </div>
 

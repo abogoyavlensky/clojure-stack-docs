@@ -6,35 +6,43 @@ icon: Rocket
 
 ## Create application
 
-1. Create project.
+import { Step, Steps } from 'fumadocs-ui/components/steps';
 
-   Change `myproject` to name of you project and run following command using [Clojure CLI](https://clojure.org/guides/install_clojure):
+<Steps>
+<Step>
+### Generate project
 
-   ```shell
-   clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new && \
-   clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' \
-        -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
-   ```
+Change `myproject` to name of you project and run following command using [Clojure CLI](https://clojure.org/guides/install_clojure):
 
-   If you already have Clojure CLI with Clojure `1.12.x` and `deps-new` tool, then you can just run:
+```shell
+clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new && \
+clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' \
+    -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
+```
 
-   ```shell
-   clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
-   ```
+If you already have Clojure CLI with Clojure `1.12.x` and `deps-new` tool, then you can just run:
 
-2. Start development (with [mise](https://mise.jdx.dev/getting-started.html)).
+```shell
+clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
+```
+</Step>
 
-   <Callout type="info">
-     `mise` is just convenient tool to manage system deps in version isolation for different projects.
-     If you want, you can install all required tools manually, consult `.mise.toml` for specific versions.
-   </Callout>
+<Step>
+### Start development
 
-   ```shell
-   cd myproject
-   mise trust && mise install
-   bb clj-repl
-   user=> (reset)
-   ```
+<Callout type="info">
+ [mise](https://mise.jdx.dev/getting-started.html) is just convenient tool to manage system deps in version isolation for different projects.
+ If you want, you can install all required tools manually, consult `.mise.toml` for specific versions.
+</Callout>
+
+```shell
+cd myproject
+mise trust && mise install
+bb clj-repl
+user=> (reset)
+```
+</Step>
+</Steps>
 
    The server should be available at [http://localhost:8000](http://localhost:8000).
 
