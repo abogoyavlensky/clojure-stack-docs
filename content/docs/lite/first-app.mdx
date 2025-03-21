@@ -4,11 +4,55 @@ description: Let's build your first CRUD application with Clojure Stack Lite
 icon: Play
 ---
 
-We just created a new project and ready to get started. Let's a simple application. 
-We are going to build Movies app with ability to add, delete, edit and show list of movies.
+We just created a new project and ready to get started. Let's build a simple application.
+We are going to build Movies app with ability to add, delete and show list of movies.
 
 _TODO: add screenshot of the final app_
 
+## After generating project
+
+First thing is recommended to do is checking the code formatting, linting, tests and outdated deps.
+You will need [Docker](https://docs.docker.com/engine/install/) installed on your system as tests are running Testcontainers using Docker.
+
+```shell
+bb check
+```
+
+Now we can initiate `git` and commit initial setup:
+
+```shell
+git init
+git add .
+git commit -am 'Initial commit'
+```
+
+## Start server
+
+Navigate to project root and run REPL:
+
+```shell
+cd myproject
+bb clj-repl
+```
+
+Then once we are in the REPL we can run the application system with server, database and TailwindCSS components:
+
+```shell
+user=> (reset)
+```
+
+_TODO: add link to setup editor doc_
+
+## Change starter page
+
+Let's change something on the starter page and see the result. Open `src/myproject/views.clj` file
+and replace ui component `:h1` to `[:h1 {:class ["text-4xl"]} "Hello world!"]`.
+After reloading the page you will see that title has been changed on the web page.
+
+![Clojure Stack Lite starter page](@/public/starter_hello.png)
+
 ## Create your first route
 
-...to be continued
+
+
+
