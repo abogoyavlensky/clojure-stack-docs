@@ -1,20 +1,19 @@
 import Link from 'next/link';
+import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
+
+const usageExampleCode = `clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new && \\
+clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' \\
+    -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject`
 
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col justify-center items-center text-center px-4 py-16 max-w-4xl mx-auto">
-      <h1 className="text-5xl font-bold mb-4">
-        <span className="text-[#0e1116] dark:text-white">Welcome to </span>
+      <h1 className="text-7xl font-bold mb-4">
         <span className="bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent">Clojure Stack Lite</span>
       </h1>
       
       <p className="text-lg mb-8">A lightweight, modern template to jumpstart your Clojure projects</p>
-      
-      <div className="text-left mb-8 bg-gray-50 p-4 rounded-md w-full max-w-2xl">
-        <p className="mb-2">To begin, modify the existing view in <code className="bg-gray-100 px-1 py-0.5 rounded">src/yourproject/views/home.clj</code> or add a new route in</p>
-        <p className="mb-2"><code className="bg-gray-100 px-1 py-0.5 rounded">src/yourproject/routes.clj</code> and define a handler in <code className="bg-gray-100 px-1 py-0.5 rounded">src/yourproject/handlers.clj</code></p>
-      </div>
-      
+
       <div className="flex gap-4 mb-8">
         <Link 
           href="/docs/lite/quickstart"
@@ -23,7 +22,11 @@ export default function HomePage() {
           Get Started
         </Link>
       </div>
-      
+
+      <div className="mb-8 text-start">
+        <DynamicCodeBlock lang="shell" code={usageExampleCode} />
+      </div>
+
       <div className="flex items-center justify-center gap-8 mt-4">
         <div className="flex flex-col items-center">
           <div className="w-8 h-8 mb-2">
