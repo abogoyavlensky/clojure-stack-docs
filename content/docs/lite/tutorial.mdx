@@ -1,0 +1,156 @@
+---
+title: Tutorial
+description: Let's build your first CRUD application with Clojure Stack Lite
+icon: Play
+---
+
+We just created a new project and ready to get started. Let's build a simple application.
+
+## After generating project
+
+First thing is recommended to do is checking the code formatting, linting, tests and outdated deps.
+You will need [Docker](https://docs.docker.com/engine/install/) installed on your system as tests are running Testcontainers using Docker.
+
+```shell
+bb check
+```
+
+Now we can initiate `git` and commit initial setup:
+
+```shell
+git init
+git add .
+git commit -am 'Initial commit'
+```
+
+## Start server
+
+Navigate to project root and run REPL:
+
+```shell
+cd myproject
+bb clj-repl
+```
+
+Then once we are in the REPL we can run the application system with server, database and TailwindCSS components:
+
+```shell
+user=> (reset)
+```
+
+_TODO: add link to setup editor doc_
+
+## Change starter page
+
+Let's change something on the starter page and see the result. Open `src/myproject/views.clj` file
+and replace ui component `:h1` to `[:h1 {:class ["text-5xl"]} "Hello world!"]`.
+After reloading the page you will see that title has been changed on the web page.
+
+![Clojure Stack Lite starter page](@/public/starter_hello.png)
+
+## Application structure
+
+The entry point of an application is `src/myproject/core.clj`. There is one function `main` that runs the system with production profile.
+We use Integrant as a framework fro running all components of the system. Core components are `db` and `server` and they are defined in
+`src/myproject/db.clj` and `src/myproject/server.clj` appropriately. The defualt configuration of server component is described in the
+separate library `reitit-extras`, this is just shortcut for convenience. It has few options to extend server configuration. If you want to change or replace,
+just copy server definition from `reitit-extras` to your project.
+
+In development mode starting point is `dev/user.clj`. There we start the same system with dev profile and an extension of config `resources/config.dev` that contains
+an additional component to start `tailwindcss` cli tool to auto-reload css styles on file change. So it's started as part of the application system and we don't need to
+run it separately.
+
+## The application
+
+All set up and we are ready to create our application. As I mentioned earlier we are going to build movie list application called "Movies Lite".
+There will be an ability to add a new movie, show the list and delete a movie from the list.
+
+_TODO: add screenshot of the final app_
+
+## Database structure
+
+For simplicity we will create one table called `movie` with fields `id`, `title`, `year`, `director`.
+To create this schema please add following database migrations:
+
+```sql title="resources/migrations/0002.up.sql"
+CREATE TABLE movies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    year INTEGER,
+    director TEXT
+);
+```
+
+Migrations are applied as part of the system start. So, to apply our new migraitons we can run `(reset)` in the REPL.
+After it we can connect to our database using any SQLite client and check that we actually created the table `movie`:
+
+![Movies DB table](@/public/lite_movies_db_table.png)
+
+## Application UI layout
+
+To visualise all parts of the application let's create a UI layout for our main page.
+Let's look at `src/myproject/views.clj`. This namespace contains functions that converts data to Hiccup templates.
+That we will convert to HTML at rendering response step. There is a `base` function that contains default setup for all pages
+with page title, static files and a placeholder for any content we want to show on the page.
+
+Mockup of the page looks like:
+
+![Movies DB table](@/public/lite_mockup.png)
+
+There is a page title and a table with list of movies. Each row has button "Delete" at the last column.
+At the end of the table there is an additional row with form inputs and and a "Create" button.
+
+Our `home-page` function will look like:
+
+```clojure title="src/myproject/views.clj"
+; ...
+
+(def home-page
+  (base
+    [:div.container.mx-auto.p-6.max-w-4xl
+     [:div.mb-10.flex.justify-between.items-center
+      [:h1.text-2xl.font-semibold.text-gray-800 "Movies"]]
+     [:div.bg-white.rounded-lg.shadow-md.overflow-hidden.border.border-gray-200
+      [:div.overflow-x-auto
+       [:table.min-w-full.divide-y.divide-gray-200
+        [:thead.bg-white
+         [:tr
+          [:th.px-6.py-3.text-left.text-gray-500.font-medium {:scope "col"} "Title"]
+          [:th.px-6.py-3.text-left.text-gray-500.font-medium {:scope "col"} "Year"]
+          [:th.px-6.py-3.text-left.text-gray-500.font-medium {:scope "col"} "Director"]
+          [:th.px-6.py-3.text-left.text-gray-500.font-medium {:scope "col"} "Actions"]]]
+        [:tbody.bg-white.divide-y.divide-gray-200
+         [:tr
+          [:td.px-6.py-4.text-gray-800 "Inception"]
+          [:td.px-6.py-4.text-gray-800 "2010"]
+          [:td.px-6.py-4.text-gray-800 "Christopher Nolan"]
+          [:td.px-6.py-4.
+           [:button
+            {:class ["text-red-400" "hover:bg-gray-50" "bg-white" "border"
+                     "border-gray-300" "rounded-md" "px-3" "py-1" "cursor-pointer"]}
+            "Delete"]]]
+         [:tr
+          [:form
+           [:td.px-6.py-4.
+            [:input.w-full.border.border-gray-300.rounded-md.px-3.py-1
+             {:type "text"
+              :placeholder "Enter title"}]]
+           [:td.px-6.py-4.
+            [:input.w-full.border.border-gray-300.rounded-md.px-3.py-1
+             {:type "text"
+              :placeholder "Enter year"}]]
+           [:td.px-6.py-4.
+            [:input.w-full.border.border-gray-300.rounded-md.px-3.py-1
+             {:type "text"
+              :placeholder "Enter director"}]]
+           [:td.px-6.py-4.
+            [:button
+             {:type "submit"
+              :class ["text-white" "hover:bg-gray-700" "bg-gray-900" "border"
+                      "border-gray-300" "rounded-md" "px-3" "py-1" "cursor-pointer"]}
+             "Create"]]]]]]]]]))
+```
+
+## Create movie
+
+
