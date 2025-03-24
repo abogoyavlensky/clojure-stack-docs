@@ -105,7 +105,20 @@ Our `home-page` function will look like:
 ```clojure title="src/myproject/views.clj"
 ; ...
 
-(def home-page
+(defn list-item
+  [{:keys [movie]}]
+  [:tr
+   [:td {:class ["px-6" "py-4" "text-gray-800"]} (:title movie)]
+   [:td {:class ["px-6" "py-4" "text-gray-800"]} (:year movie)]
+   [:td {:class ["px-6" "py-4" "text-gray-800"]} (:director movie)]
+   [:td {:class ["px-6" "py-4"]}
+    [:button
+     {:class ["text-red-400" "hover:bg-gray-50" "bg-white" "border"
+              "border-gray-300" "rounded-md" "px-3" "py-1" "cursor-pointer"]}
+     "Delete"]]])
+
+(defn home-page
+  [{:keys [router movies]}]
   (base
     [:div {:id "content"
            :class ["container" "mx-auto" "p-6" "max-w-4xl"]}
@@ -127,16 +140,8 @@ Our `home-page` function will look like:
                 :scope "col"} "Actions"]]]
         [:tbody {:id "table-content"
                  :class ["bg-white" "divide-y" "divide-gray-200"]}
-         (for [movie []]
-           [:tr
-            [:td {:class ["px-6" "py-4" "text-gray-800"]} (:title movie)]
-            [:td {:class ["px-6" "py-4" "text-gray-800"]} (:year movie)]
-            [:td {:class ["px-6" "py-4" "text-gray-800"]} (:director movie)]
-            [:td {:class ["px-6" "py-4"]}
-             [:button
-              {:class ["text-red-400" "hover:bg-gray-50" "bg-white" "border"
-                       "border-gray-300" "rounded-md" "px-3" "py-1" "cursor-pointer"]}
-              "Delete"]]])]]]
+         (for [movie movies]
+           (list-item {:movie movie}))]]]
       [:form
        {:class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]}
        [:div {:class ["grid" "grid-cols-1" "md:grid-cols-4" "gap-4"]}
@@ -168,6 +173,9 @@ Our `home-page` function will look like:
           "Create"]]]]]]))
 ```
 
+We also moved list item to separate component as we will need to rendered it separately for created movie
+in the next section.
+
 After refreshing page in the browser it will look like:
 
 ![Page layout](@/public/lite_page_layout.png)
@@ -175,4 +183,121 @@ After refreshing page in the browser it will look like:
 ## Create movie
 
 We have a ui part for the table and form. Now we can add a new route and handler for creating a movie.
+
+First, we add an sql queries for creating and fetching a movies. Let's create a new file `queries.clj`:
+
+```clj title="src/myproject/queries.clj"
+(ns myproject.queries
+  (:require [myproject.db :as db]))
+
+(defn get-movies
+  [db]
+  (db/exec! db {:select [:*]
+                :from [:movie]
+                :order-by [:id]}))
+
+(defn create-movie
+  [db {:keys [title year director]}]
+  (->> {:insert-into :movie
+        :values [{:title title
+                  :year year
+                  :director director}]
+        :returning [:*]}
+       (db/exec-one! db)))
+```
+
+Now we can add a new handler for creating a movie:
+
+```clojure title="src/myproject/handlers.clj"
+(ns myproject.handlers
+  (:require [myproject.queries :as queries]
+            ; ...
+            )
+
+; ...
+
+(defn create-movie-handler
+  "Render a new table item with newly created movie."
+  [{{:keys [db]} :context
+    {:keys [form]} :parameters
+    router :reitit.core/router}]
+  (-> {:router router
+       :movie (queries/create-movie db form)}
+      (views/list-item)
+      (reitit-extras/render-html)))
+```
+
+Single parameter of a router is `request`.
+Each handler will have a key `context` add to request by default and a router.
+Context has all system components of our application, so we can use a `db` component with connection
+pool to create a new movie.
+
+Now let's ad a new route for this handler.
+
+```clj title="src/myproject/routes.clj"
+; ...
+
+(def routes
+  [; ...
+   ["/movies"
+    ["" {:name ::movies
+         :post {:handler handlers/create-movie-handler
+                :responses {200 {:body string?}}}}]]])
+```
+
+And finaly, we need to update our form such that it will send request to our new route:
+
+```clj title="src/myproject/views.clj"
+(defn home-page  // [!code highlight]
+  // [!code highlight]
+  [{:keys [router movies]}]
+  (base
+    [:div {:id "content"
+           :class ["container" "mx-auto" "p-6" "max-w-4xl"]}
+      ;...
+      [:form
+       {:class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]
+        // [!code highlight]
+        :hx-post (reitit-extras/get-route router ::routes/movies-list)
+        // [!code highlight]
+        :hx-target "#table-content"
+        // [!code highlight]
+        :hx-swap "beforeend"}
+       // [!code highlight]
+       (reitit-extras/csrf-token)
+       [:div {:class ["grid" "grid-cols-1" "md:grid-cols-4" "gap-4"]}
+        ; ...
+        [:div {:class ["flex" "items-end" "grow" "ml-10"]}
+         [:button {:class ["bg-blue-600" "text-white" "rounded-md" "px-4" "py-2"
+                           "hover:bg-blue-700" "cursor-pointer"]}
+          "Create"]]]]]]))
+```
+
+We need to pass router to the page view function to be able to build an url for creating a movie.
+Also we need to pass movies list to be able to render the table. So we convert our var `home-page`
+to function and pass parameters.
+
+Then we update form with `:hx-port` attribute with new route, `:hx-target` with the id of a table content
+that we added at previous step. We are going to return HTML for just one item in the table, so we configure
+`:hx-swap "beforeend"` to add it as the very last item.
+
+To be able to send `POST` request we added a hidden input with csrf-token.
+
+And last thing. To show the home page properly let's update the handler for it with passing new parameters:
+
+```clj title="src/myproject/handlers.clj"
+;...
+(defn home-handler
+  [{{:keys [db]} :context
+    router :reitit.core/router}]
+  (-> {:router router
+       :movies (queries/get-movies db)}
+      (views/home-page)
+      (reitit-extras/render-html)))
+;...
+```
+
+Now once we reload the system in REPL `(reset)` we should be able to create a new moview using our form.
+
+![Create movie](@/public/lite_create.png)
 
