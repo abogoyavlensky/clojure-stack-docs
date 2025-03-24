@@ -73,11 +73,11 @@ For simplicity we will create one table called `movie` with fields `id`, `title`
 To create this schema please add following database migrations:
 
 ```sql title="resources/migrations/0002.up.sql"
-CREATE TABLE movies (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE movie (
+    id INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT NOT NULL,
     title TEXT NOT NULL,
-    year INTEGER,
-    director TEXT
+    year INTEGER NOT NULL,
+    director TEXT NOT NULL
 );
 ```
 
@@ -95,7 +95,7 @@ with page title, static files and a placeholder for any content we want to show 
 
 Mockup of the page looks like:
 
-![Movies DB table](@/public/lite_mockup.png)
+![UI mockup](@/public/lite_mockup.png)
 
 There is a page title and a table with list of movies. Each row has button "Delete" at the last column.
 At the end of the table there is an additional row with form inputs and and a "Create" button.
@@ -107,50 +107,72 @@ Our `home-page` function will look like:
 
 (def home-page
   (base
-    [:div.container.mx-auto.p-6.max-w-4xl
-     [:div.mb-10.flex.justify-between.items-center
-      [:h1.text-2xl.font-semibold.text-gray-800 "Movies"]]
-     [:div.bg-white.rounded-lg.shadow-md.overflow-hidden.border.border-gray-200
-      [:div.overflow-x-auto
-       [:table.min-w-full.divide-y.divide-gray-200
-        [:thead.bg-white
+    [:div {:id "content"
+           :class ["container" "mx-auto" "p-6" "max-w-4xl"]}
+     [:div {:class ["mb-10" "flex" "justify-between" "items-center"]}
+      [:h1 {:class ["text-2xl" "font-semibold" "text-gray-800"]} "Movies"]]
+     [:div {:class ["bg-white" "rounded-lg" "shadow-md" "overflow-hidden" "border"
+                    "border-gray-200"]}
+      [:div {:class ["overflow-x-auto"]}
+       [:table {:class ["min-w-full" "divide-y" "divide-gray-200"]}
+        [:thead {:class ["bg-white"]}
          [:tr
-          [:th.px-6.py-3.text-left.text-gray-500.font-medium {:scope "col"} "Title"]
-          [:th.px-6.py-3.text-left.text-gray-500.font-medium {:scope "col"} "Year"]
-          [:th.px-6.py-3.text-left.text-gray-500.font-medium {:scope "col"} "Director"]
-          [:th.px-6.py-3.text-left.text-gray-500.font-medium {:scope "col"} "Actions"]]]
-        [:tbody.bg-white.divide-y.divide-gray-200
-         [:tr
-          [:td.px-6.py-4.text-gray-800 "Inception"]
-          [:td.px-6.py-4.text-gray-800 "2010"]
-          [:td.px-6.py-4.text-gray-800 "Christopher Nolan"]
-          [:td.px-6.py-4.
-           [:button
-            {:class ["text-red-400" "hover:bg-gray-50" "bg-white" "border"
-                     "border-gray-300" "rounded-md" "px-3" "py-1" "cursor-pointer"]}
-            "Delete"]]]
-         [:tr
-          [:form
-           [:td.px-6.py-4.
-            [:input.w-full.border.border-gray-300.rounded-md.px-3.py-1
-             {:type "text"
-              :placeholder "Enter title"}]]
-           [:td.px-6.py-4.
-            [:input.w-full.border.border-gray-300.rounded-md.px-3.py-1
-             {:type "text"
-              :placeholder "Enter year"}]]
-           [:td.px-6.py-4.
-            [:input.w-full.border.border-gray-300.rounded-md.px-3.py-1
-             {:type "text"
-              :placeholder "Enter director"}]]
-           [:td.px-6.py-4.
-            [:button
-             {:type "submit"
-              :class ["text-white" "hover:bg-gray-700" "bg-gray-900" "border"
-                      "border-gray-300" "rounded-md" "px-3" "py-1" "cursor-pointer"]}
-             "Create"]]]]]]]]]))
+          [:th {:class ["px-6" "py-3" "text-left" "text-gray-500" "font-medium"]
+                :scope "col"} "Title"]
+          [:th {:class ["px-6" "py-3" "text-left" "text-gray-500" "font-medium"]
+                :scope "col"} "Year"]
+          [:th {:class ["px-6" "py-3" "text-left" "text-gray-500" "font-medium"]
+                :scope "col"} "Director"]
+          [:th {:class ["px-6" "py-3" "text-left" "text-gray-500" "font-medium"]
+                :scope "col"} "Actions"]]]
+        [:tbody {:id "table-content"
+                 :class ["bg-white" "divide-y" "divide-gray-200"]}
+         (for [movie []]
+           [:tr
+            [:td {:class ["px-6" "py-4" "text-gray-800"]} (:title movie)]
+            [:td {:class ["px-6" "py-4" "text-gray-800"]} (:year movie)]
+            [:td {:class ["px-6" "py-4" "text-gray-800"]} (:director movie)]
+            [:td {:class ["px-6" "py-4"]}
+             [:button
+              {:class ["text-red-400" "hover:bg-gray-50" "bg-white" "border"
+                       "border-gray-300" "rounded-md" "px-3" "py-1" "cursor-pointer"]}
+              "Delete"]]])]]]
+      [:form
+       {:class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]}
+       [:div {:class ["grid" "grid-cols-1" "md:grid-cols-4" "gap-4"]}
+        [:div
+         [:label {:class ["block" "text-sm" "font-medium" "text-gray-700" "mb-1"]
+                  :for "titleInput"} "Title"]
+         [:input {:class ["w-full" "border" "border-gray-300" "rounded-md" "px-3" "py-2"]
+                  :type "text"
+                  :name "title"
+                  :placeholder "Enter title"}]]
+        [:div
+         [:label {:class ["block" "text-sm" "font-medium" "text-gray-700" "mb-1"]
+                  :for "yearInput"} "Year"]
+         [:input {:class ["w-full" "border" "border-gray-300" "rounded-md" "px-3" "py-2"]
+                  :type "number"
+                  :min 1
+                  :name "year"
+                  :placeholder "Enter year"}]]
+        [:div
+         [:label {:class ["block" "text-sm" "font-medium" "text-gray-700" "mb-1"]
+                  :for "directorInput"} "Director"]
+         [:input {:class ["w-full" "border" "border-gray-300" "rounded-md" "px-3" "py-2"]
+                  :type "text"
+                  :name "director"
+                  :placeholder "Enter director"}]]
+        [:div {:class ["flex" "items-end" "grow" "ml-10"]}
+         [:button {:class ["bg-blue-600" "text-white" "rounded-md" "px-4" "py-2"
+                           "hover:bg-blue-700" "cursor-pointer"]}
+          "Create"]]]]]]))
 ```
+
+After refreshing page in the browser it will look like:
+
+![Page layout](@/public/lite_page_layout.png)
 
 ## Create movie
 
+We have a ui part for the table and form. Now we can add a new route and handler for creating a movie.
 
