@@ -4,15 +4,15 @@ description: Let's get started with your first project using Clojure Stack Lite!
 icon: Zap
 ---
 
-## Create application
+## Create Your Application
 
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 <Steps>
 <Step>
-### Generate project
+### Generate a New Project
 
-Change `myproject` to name of you project and run following command using [Clojure CLI](https://clojure.org/guides/install_clojure):
+Replace `myproject` with your desired project name and run the following command using [Clojure CLI](https://clojure.org/guides/install_clojure):
 
 ```shell
 clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new && \
@@ -20,7 +20,7 @@ clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' 
     -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
 ```
 
-If you already have Clojure CLI with Clojure `1.12.x` and `deps-new` tool, then you can just run:
+If you already have Clojure CLI with Clojure `1.12.x` and the `deps-new` tool installed, you can simply run:
 
 ```shell
 clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
@@ -28,11 +28,11 @@ clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name
 </Step>
 
 <Step>
-### Start development
+### Start Development Environment
 
 <Callout type="info">
- [mise](https://mise.jdx.dev/getting-started.html) is just convenient tool to manage system deps in version isolation for different projects.
- If you want, you can install all required tools manually, consult `.mise.toml` for specific versions.
+ [mise](https://mise.jdx.dev/getting-started.html) is a convenient tool for managing system dependencies in isolated environments for different projects.
+ If you prefer, you can install all required tools manually by consulting the `.mise.toml` file for specific versions.
 </Callout>
 
 ```shell
@@ -44,21 +44,21 @@ user=> (reset)
 </Step>
 </Steps>
 
-   The server should be available at [http://localhost:8000](http://localhost:8000).
+Your server should now be running and available at [http://localhost:8000](http://localhost:8000).
 
 ![Clojure Stack Lite starter page](@/public/starter.png)
 
-### Update Placeholders
+### Update Project Placeholders
 
-Also you might want to edit some details in placeholders before going to production:
+Before deploying to production, you should update the following placeholders in your project:
 
-- `LABEL` in `Dockerfile` to point out your project's repository for correct image attribution
-- domain in the `id` field of the `resources/public/manifest.json` to install your web app as a PWA
-- update description at `TODO: add project description` in the `README.md`
+- The `LABEL` in `Dockerfile` to reference your project's repository for correct image attribution
+- The domain in the `id` field of `resources/public/manifest.json` to properly configure your web app as a PWA
+- The description marked with `TODO: add project description` in the `README.md`
 
-## Project structure
+## Project Structure
 
-The generate project will have the following structure:
+Your newly generated project will have the following structure:
 
 ```
 ├── .clj-kondo/            # Clojure linting configuration
@@ -95,10 +95,9 @@ The generate project will have the following structure:
 └── README.md              # Project documentation
 ```
 
-## Next steps
+## Next Steps
 
-As you just generated a new project you might want start building with it straightaway a simple app to get started,
-or learn more about different part of your project. Choose anything what you prefer!
+Now that you've generated your new project, you can either start building a simple application right away or learn more about different aspects of your project. Choose whichever path you prefer!
 
 import { Play, BookOpenText } from 'lucide-react';
 
