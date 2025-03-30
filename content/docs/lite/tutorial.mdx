@@ -1,6 +1,6 @@
 ---
 title: Tutorial
-description: Let's build your first CRUD application with Clojure Stack Lite
+description: Let's build your first application with Clojure Stack Lite
 icon: Play
 ---
 
@@ -15,7 +15,7 @@ You will need [Docker](https://docs.docker.com/engine/install/) installed on you
 bb check
 ```
 
-Now we can initiate `git` and commit initial setup:
+Now we can initiate git-repository and commit initial setup:
 
 ```shell
 git init
@@ -32,7 +32,7 @@ cd myproject
 bb clj-repl
 ```
 
-Then once we are in the REPL we can run the application system with server, database and TailwindCSS components:
+Then once we are in the REPL we can run the application system with server, database and TailwindCSS CLI components:
 
 ```shell
 user=> (reset)
@@ -48,29 +48,27 @@ After reloading the page you will see that title has been changed on the web pag
 
 ![Clojure Stack Lite starter page](@/public/starter_hello.png)
 
-## Application structure
+## Application system components
 
 The entry point of an application is `src/myproject/core.clj`. There is one function `main` that runs the system with production profile.
-We use Integrant as a framework fro running all components of the system. Core components are `db` and `server` and they are defined in
+We use Integrant as a framework for running all components of the system. Core components are `db` and `server` and they are defined in
 `src/myproject/db.clj` and `src/myproject/server.clj` appropriately. The defualt configuration of server component is described in the
-separate library `reitit-extras`, this is just shortcut for convenience. It has few options to extend server configuration. If you want to change or replace,
-just copy server definition from `reitit-extras` to your project.
+separate library `reitit-extras`, this is just shortcut for convenience. It has few options to extend server configuration.
+If you want to change or replace amything in the server configuration, just copy server definition from `reitit-extras` to your project.
 
-In development mode starting point is `dev/user.clj`. There we start the same system with dev profile and an extension of config `resources/config.dev` that contains
-an additional component to start `tailwindcss` cli tool to auto-reload css styles on file change. So it's started as part of the application system and we don't need to
+In development mode entry point is `dev/user.clj`. There we start the same system with dev profile and an extension of config `resources/config.dev` that contains
+just one additional component to start `tailwindcss` CLI tool in watch mode to auto-reload css styles on file change. So it's started as part of the application system and we don't need to
 run it separately.
 
 ## The application
 
 All set up and we are ready to create our application. As I mentioned earlier we are going to build movie list application called "Movies Lite".
-There will be an ability to add a new movie, show the list and delete a movie from the list.
-
-_TODO: add screenshot of the final app_
+There will be an ability to add a new movie, show the list of movies and delete a row from the list.
 
 ## Database structure
 
 For simplicity we will create one table called `movie` with fields `id`, `title`, `year`, `director`.
-To create this schema please add following database migrations:
+To create this schema please add following database migration by creating a new file `resources/migrations/0002.up.sql` with content:
 
 ```sql title="resources/migrations/0002.up.sql"
 CREATE TABLE movie (
@@ -81,8 +79,8 @@ CREATE TABLE movie (
 );
 ```
 
-Migrations are applied as part of the system start. So, to apply our new migraitons we can run `(reset)` in the REPL.
-After it we can connect to our database using any SQLite client and check that we actually created the table `movie`:
+Migrations are applied as part of the system start. So, to apply our new migrations we can run `(reset)` in the REPL.
+After it we can connect to our database using any SQLite client (for example [TablePlus](https://tableplus.com/)) and check that we actually created the table `movie`:
 
 ![Movies DB table](@/public/lite_movies_db_table.png)
 
@@ -93,18 +91,17 @@ Let's look at `src/myproject/views.clj`. This namespace contains functions that 
 That we will convert to HTML at rendering response step. There is a `base` function that contains default setup for all pages
 with page title, static files and a placeholder for any content we want to show on the page.
 
-Mockup of the page looks like:
+Mockup of the page we are going to build looks like:
 
 ![UI mockup](@/public/lite_mockup.png)
 
 There is a page title and a table with list of movies. Each row has button "Delete" at the last column.
-At the end of the table there is an additional row with form inputs and and a "Create" button.
+At the bottom of the table there is a form to create a new movie.
 
-Our `home-page` function will look like:
+Our `home-page` function and additional functions will look like:
 
 ```clojure title="src/myproject/views.clj"
 ; ...
-
 (defn list-item
   [{:keys [movie]}]
   [:tr
@@ -117,13 +114,41 @@ Our `home-page` function will look like:
               "border-gray-300" "rounded-md" "px-3" "py-1" "cursor-pointer"]}
      "Delete"]]])
 
+(defn form-input
+  [{:keys [field-name field-type attrs]}]
+  [:div
+   {:class ["flex" "flex-col"]}
+   [:input (merge {:class ["w-full" "border" "border-gray-300" "rounded-md" "px-3" "py-2"]
+                   :type field-type
+                   :name field-name
+                   :placeholder (str "Enter " field-name)}
+                  attrs)]])
+
+(defn form
+  []
+  [:form
+   (cond-> {:id "form-create-movie"
+            :class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]})
+   [:div {:class ["grid" "grid-cols-1" "md:grid-cols-4" "gap-4"]}
+    (form-input {:field-name "title"
+                 :field-type "text"})
+    (form-input {:field-name "year"
+                 :field-type "number"
+                 :attrs {:min 1888}})
+    (form-input {:field-name "director"
+                 :field-type "text"})
+    [:div {:class ["flex" "flex-col"]}
+     [:button {:class ["bg-blue-600" "text-white" "rounded-md" "px-4" "py-2"
+                       "hover:bg-blue-700" "cursor-pointer"]}
+      "Create"]]]])
+
 (defn home-page
-  [{:keys [router movies]}]
+  [{:keys [movies]}]
   (base
     [:div {:id "content"
            :class ["container" "mx-auto" "p-6" "max-w-4xl"]}
      [:div {:class ["mb-10" "flex" "justify-between" "items-center"]}
-      [:h1 {:class ["text-2xl" "font-semibold" "text-gray-800"]} "Movies"]]
+      [:h1 {:class ["text-2xl" "font-semibold" "text-gray-800"]} "Movies Lite"]]
      [:div {:class ["bg-white" "rounded-lg" "shadow-md" "overflow-hidden" "border"
                     "border-gray-200"]}
       [:div {:class ["overflow-x-auto"]}
@@ -142,39 +167,27 @@ Our `home-page` function will look like:
                  :class ["bg-white" "divide-y" "divide-gray-200"]}
          (for [movie movies]
            (list-item {:movie movie}))]]]
-      [:form
-       {:class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]}
-       [:div {:class ["grid" "grid-cols-1" "md:grid-cols-4" "gap-4"]}
-        [:div
-         [:label {:class ["block" "text-sm" "font-medium" "text-gray-700" "mb-1"]
-                  :for "titleInput"} "Title"]
-         [:input {:class ["w-full" "border" "border-gray-300" "rounded-md" "px-3" "py-2"]
-                  :type "text"
-                  :name "title"
-                  :placeholder "Enter title"}]]
-        [:div
-         [:label {:class ["block" "text-sm" "font-medium" "text-gray-700" "mb-1"]
-                  :for "yearInput"} "Year"]
-         [:input {:class ["w-full" "border" "border-gray-300" "rounded-md" "px-3" "py-2"]
-                  :type "number"
-                  :min 1
-                  :name "year"
-                  :placeholder "Enter year"}]]
-        [:div
-         [:label {:class ["block" "text-sm" "font-medium" "text-gray-700" "mb-1"]
-                  :for "directorInput"} "Director"]
-         [:input {:class ["w-full" "border" "border-gray-300" "rounded-md" "px-3" "py-2"]
-                  :type "text"
-                  :name "director"
-                  :placeholder "Enter director"}]]
-        [:div {:class ["flex" "items-end" "grow" "ml-10"]}
-         [:button {:class ["bg-blue-600" "text-white" "rounded-md" "px-4" "py-2"
-                           "hover:bg-blue-700" "cursor-pointer"]}
-          "Create"]]]]]]))
+      (form)]]))
 ```
 
-We also moved list item to separate component as we will need to rendered it separately for created movie
+We also moved list item, form and form inputs to separate components for convenience and as we will need to rendered it separately for created movie
 in the next section.
+
+We need to update our `home-handler` to pass fake data for `movies` to show them on the page:
+
+```clojure title="src/myproject/handlers.clj"
+; ...
+(defn home-handler
+  [_]
+  (-> {:movies [{:title "Movie 1"
+                 :year 2023
+                 :director "Director 1"}
+                {:title "Movie 2"
+                 :year 2022
+                 :director "Director 2"}]}
+      (views/home-page)
+      (reitit-extras/render-html)))
+```
 
 After refreshing page in the browser it will look like:
 
@@ -301,3 +314,16 @@ Now once we reload the system in REPL `(reset)` we should be able to create a ne
 
 ![Create movie](@/public/lite_create.png)
 
+## Form errors
+
+Our for can create a movie but what if we don't fill title? It will throw an error, because this field is required in the database.
+Let's add parameters validation before inserting data to the database. We also need showing validation errors on the page.
+
+Usually, we would describe params validation as part of router using Malli, but to be able to return different HTML with of a form with validation errors
+we need to move this validation to the handler itself.
+
+
+
+## Delete a movie
+
+## Summary
