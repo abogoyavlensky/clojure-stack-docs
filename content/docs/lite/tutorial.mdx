@@ -368,11 +368,208 @@ Now once we reload the system in REPL `(reset)` we should be able to create a ne
 Our for can create a movie but what if we don't fill title? It will throw an error, because this field is required in the database.
 Let's add parameters validation before inserting data to the database. We also need showing validation errors on the page.
 
-Usually, we would describe params validation as part of router using Malli, but to be able to return different HTML with of a form with validation errors
-we need to move this validation to the handler itself.
+Usually, we would describe params validation as part of router using Malli, but to be able to return different HTML with validation messages
+we will move this validation to the handler itself.
+
+```clojure title="src/myproject/handlers.clj"
+(ns myproject.handlers
+            // [!code highlight]
+  (:require [malli.core :as m]
+            // [!code highlight]
+            [malli.error :as me]
+            // [!code highlight]
+            [malli.transform :as mt]
+            [myproject.queries :as queries]
+            [myproject.views :as views]
+            [reitit-extras.core :as reitit-extras]
+            [ring.util.response :as response]))
+
+; ...
+// [!code highlight]
+(defn validate-params!
+  // [!code highlight]
+  "Validate router parameters and return human-readable errors."
+  // [!code highlight]
+  [schema data]
+  // [!code highlight]
+  (try
+    // [!code highlight]
+    (m/coerce schema data (mt/transformer mt/strip-extra-keys-transformer
+                                          // [!code highlight]
+                                          mt/string-transformer))
+    // [!code highlight]
+    (catch Exception e
+      // [!code highlight]
+      {:errors (-> e (ex-data) :data :explain me/humanize)})))
 
 
+(defn create-movie-handler
+  "Render a new table item with newly created movie."
+  [{router :reitit.core/router
+    :keys [context params]}]
+  // [!code highlight]
+  (let [validated-params (validate-params! [:map
+                                            // [!code highlight]
+                                            [:title [:string {:min 1}]]
+                                            // [!code highlight]
+                                            [:year pos-int?]
+                                            // [!code highlight]
+                                            [:director [:string {:min 1}]]]
+                                           // [!code highlight]
+                                           params)]
+    // [!code highlight]
+    (if (seq (:errors validated-params))
+      // [!code highlight]
+      (-> {:router router
+           // [!code highlight]
+           :errors (:errors validated-params)
+           // [!code highlight]
+           :params params}
+          // [!code highlight]
+          (views/form)
+          // [!code highlight]
+          (reitit-extras/render-html))
+      (-> (list
+            (views/form {:router router})
+            [:template
+             [:tbody
+              {:hx-swap-oob "beforeend:#table-content"}
+              (views/list-item {:router router
+                                :movie (queries/create-movie (:db context) params)})]])
+          (reitit-extras/render-html)
+          (response/header "Content-Type" "text/html")))))
+```
+
+If we found validation errors we return them as part of the response to the form.
+If the request is valid we create a new movie and return it as part of the response along with the empty form, exactly as before.
+
+
+On the frontend part we add `errors` to the form input and show them below the input field.
+
+```clojure title="src/myproject/views.clj"
+; ...
+
+(defn form-input
+  // [!code highlight]
+  [{:keys [field-name field-type field-value errors attrs]}]
+  [:div
+   ; ...
+   // [!code highlight]
+   (for [err errors]
+     // [!code highlight]
+     [:p {:class ["text-red-500" "text-xs" "mt-1" "h-4"]} (str/capitalize err)])])
+
+(defn form
+  // [!code highlight]
+  [{:keys [router errors params]}]
+  [:form
+   (cond-> {:id "form-create-movie"
+            :class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]
+            :hx-post (reitit-extras/get-route router ::routes/movie-list)
+            :hx-target "#form-create-movie"
+            :hx-swap "outerHTML"})
+   (reitit-extras/csrf-token-html)
+   [:div {:class ["grid" "grid-cols-1" "md:grid-cols-4" "gap-4"]}
+    (form-input {:field-name "title"
+                 :field-type "text"
+                 :field-value (:title params)
+                 // [!code highlight]
+                 :errors (:title errors)})
+    (form-input {:field-name "year"
+                 :field-type "number"
+                 :field-value (:year params)
+                 // [!code highlight]
+                 :errors (:year errors)
+                 :attrs {:min 1888}})
+    (form-input {:field-name "director"
+                 :field-type "text"
+                 :field-value (:director params)
+                 // [!code highlight]
+                 :errors (:director errors)})
+    [:div {:class ["flex" "flex-col"]}
+     [:button {:class ["bg-blue-600" "text-white" "rounded-md" "px-4" "py-2"
+                       "hover:bg-blue-700" "cursor-pointer"]}
+      "Create"]]]])
+
+```
+
+![Create form validation errors](@/public/lite_create_2.png)
 
 ## Delete a movie
 
+Now we can add a delete button to each row of the table. We will use `:hx-delete` attribute to send a request to the server.
+Then we add `"closest tr"` as `:hx-target` to remove the row from the table. Also we need to add csrf token to the request header.
+
+```clojure title="src/myproject/views.clj"
+; ...
+
+(defn list-item
+  [{:keys [router movie]}]
+  [:tr
+   [:td {:class ["px-6" "py-4" "text-gray-800"]} (:title movie)]
+   [:td {:class ["px-6" "py-4" "text-gray-800"]} (:year movie)]
+   [:td {:class ["px-6" "py-4" "text-gray-800"]} (:director movie)]
+   [:td {:class ["px-6" "py-4"]}
+   // [!code highlight]
+    [:button
+    // [!code highlight]
+     {:class ["text-red-400" "hover:bg-gray-50" "bg-white" "border"
+              // [!code highlight]
+              "border-gray-300" "rounded-md" "px-3" "py-1" "cursor-pointer"]
+      // [!code highlight]
+      :hx-delete (reitit-extras/get-route router ::routes/movie-details {:path {:id (:id movie)}})
+      // [!code highlight]
+      :hx-headers (reitit-extras/csrf-token-json)
+      // [!code highlight]
+      // [!code highlight]
+      :hx-target "closest tr"
+      // [!code highlight]
+      :hx-swap "outerHTML"}
+     // [!code highlight]
+     "Delete"]]])
+
+(defn home-page
+  [{:keys [router movies]}]
+  (base
+    [:div {:id "content"
+           :class ["container" "mx-auto" "p-6" "max-w-4xl"]}
+     ; ...
+     [:div {:class ["bg-white" "rounded-lg" "shadow-md" "overflow-hidden" "border" "border-gray-200"]}
+      [:div {:class ["overflow-x-auto"]}
+       [:table {:class ["min-w-full" "divide-y" "divide-gray-200"]}
+        ; ...
+        [:tbody {:id "table-content"
+                 :class ["bg-white" "divide-y" "divide-gray-200"]}
+         (for [movie movies]
+          // [!code highlight]
+           (list-item {:router router
+                       :movie movie}))]]]
+      (form {:router router})]]))
+```
+
+Now, clicking on the delete button will remove the row from the table.
+
 ## Summary
+
+In this quick tutorial we created a simple application with Clojure Stack Lite.
+We've seen how to create a new project, start the server and create a simple application with a form and a table.
+We performed `POST` request, `GET` reuest and `DELETE` request using HTMX, with form validation and error handling.
+
+For real-world application you might want to add more features like: user authentication/authorization,
+list pagination, etc. But this is a good starting point to build your own application.
+
+## Next steps
+
+From this point you can continue with deploying your application to production or learn more about
+project structure and how to manage the project in the "Guide" section.
+
+import { Rocket, BookOpenText } from 'lucide-react';
+
+<Cards>
+    <Card title="Deployment" href="/docs/lite/kamal" icon={<Rocket />}>
+      Deploy your application to production with Kamal
+    </Card>
+    <Card title="Local Development" href="/docs/lite/local-development" icon={<BookOpenText />}>
+      Learn how to setup local development environment
+    </Card>
+</Cards>
