@@ -195,15 +195,17 @@ After refreshing page in the browser it will look like:
 
 ## Create movie
 
-We have a ui part for the table and form. Now we can add a new route and handler for creating a movie.
+We have a basic ui part for the table and form. Now we can add a new route and handler for creating a movie.
 
-First, we add an sql queries for creating and fetching a movies. Let's create a new file `queries.clj`:
+### Backend
+
+First, we add sql queries for creating and fetching a movies. Let's create a new file `queries.clj`:
 
 ```clj title="src/myproject/queries.clj"
 (ns myproject.queries
   (:require [myproject.db :as db]))
 
-(defn get-movies
+(defn get-movie-list
   [db]
   (db/exec! db {:select [:*]
                 :from [:movie]
@@ -211,18 +213,18 @@ First, we add an sql queries for creating and fetching a movies. Let's create a 
 
 (defn create-movie
   [db {:keys [title year director]}]
-  (->> {:insert-into :movie
-        :values [{:title title
-                  :year year
-                  :director director}]
-        :returning [:*]}
-       (db/exec-one! db)))
+  (db/exec-one! db {:insert-into :movie
+                    :values [{:title title
+                              :year year
+                              :director director}]
+                    :returning [:*]}))
 ```
 
 Now we can add a new handler for creating a movie:
 
 ```clojure title="src/myproject/handlers.clj"
 (ns myproject.handlers
+  // [!code highlight]
   (:require [myproject.queries :as queries]
             ; ...
             )
@@ -231,88 +233,135 @@ Now we can add a new handler for creating a movie:
 
 (defn create-movie-handler
   "Render a new table item with newly created movie."
-  [{{:keys [db]} :context
-    {:keys [form]} :parameters
-    router :reitit.core/router}]
-  (-> {:router router
-       :movie (queries/create-movie db form)}
-      (views/list-item)
-      (reitit-extras/render-html)))
+  [{router :reitit.core/router
+    :keys [context params]}]
+  (-> (list
+        (views/form {:router router})
+        [:template
+         [:tbody
+          {:hx-swap-oob "beforeend:#table-content"}
+          (views/list-item {:router router
+                            :movie (queries/create-movie (:db context) params)})]])
+      (reitit-extras/render-html)
+      (response/header "Content-Type" "text/html")))
 ```
 
-Single parameter of a router is `request`.
-Each handler will have a key `context` add to request by default and a router.
-Context has all system components of our application, so we can use a `db` component with connection
+Single parameter of a handler is `request`. Each handler will have a key `context` add to request by default (using middleware [`wrap-context`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L182))
+and a router. `context` has all system components of our application, so we can use a `db` component with connection
 pool to create a new movie.
 
-Now let's ad a new route for this handler.
+Also in the same response we return `views/list-item` ui component with newly created movie as [out-of-bound](https://htmx.org/examples/update-other-content/#oob)
+element that will be added at the end of the table. The table will be found by `id` `table-content` that we added to the table in the previous step.
+
+Now let's add a new route for this handler.
 
 ```clj title="src/myproject/routes.clj"
 ; ...
 
 (def routes
-  [; ...
+  [["/" {:name ::home-page
+            :get {:handler handlers/home-handler}
+            :responses {200 {:body string?}}}]
+   // [!code highlight]
    ["/movies"
-    ["" {:name ::movies
+    // [!code highlight]
+    ["" {:name ::movie-list
+         // [!code highlight]
          :post {:handler handlers/create-movie-handler
+                // [!code highlight]
                 :responses {200 {:body string?}}}}]]])
 ```
 
-And finaly, we need to update our form such that it will send request to our new route:
+<Callout type="info">
+ We do not add schema for request parameters as we are going to validate them in the handler itself to be able to return validation errors as part of the HTML response.
+ That is why we got parameters in the handler from `params` key of the request that comes from [`wrap-nested-params`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L186-L187) middleware
+ instead of the [`parameters-middleware`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L184), as the last one requires schema definition in the route.
+</Callout>
 
-```clj title="src/myproject/views.clj"
-(defn home-page  // [!code highlight]
-  // [!code highlight]
-  [{:keys [router movies]}]
-  (base
-    [:div {:id "content"
-           :class ["container" "mx-auto" "p-6" "max-w-4xl"]}
-      ;...
-      [:form
-       {:class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]
-        // [!code highlight]
-        :hx-post (reitit-extras/get-route router ::routes/movies-list)
-        // [!code highlight]
-        :hx-target "#table-content"
-        // [!code highlight]
-        :hx-swap "beforeend"}
-       // [!code highlight]
-       (reitit-extras/csrf-token)
-       [:div {:class ["grid" "grid-cols-1" "md:grid-cols-4" "gap-4"]}
-        ; ...
-        [:div {:class ["flex" "items-end" "grow" "ml-10"]}
-         [:button {:class ["bg-blue-600" "text-white" "rounded-md" "px-4" "py-2"
-                           "hover:bg-blue-700" "cursor-pointer"]}
-          "Create"]]]]]]))
-```
-
-We need to pass router to the page view function to be able to build an url for creating a movie.
-Also we need to pass movies list to be able to render the table. So we convert our var `home-page`
-to function and pass parameters.
-
-Then we update form with `:hx-port` attribute with new route, `:hx-target` with the id of a table content
-that we added at previous step. We are going to return HTML for just one item in the table, so we configure
-`:hx-swap "beforeend"` to add it as the very last item.
-
-To be able to send `POST` request we added a hidden input with csrf-token.
-
-And last thing. To show the home page properly let's update the handler for it with passing new parameters:
+And last thing. To show the home page properly let's update the handler for it passing `router` and `movies` list from the database:
 
 ```clj title="src/myproject/handlers.clj"
 ;...
 (defn home-handler
-  [{{:keys [db]} :context
+  [{:keys [context]
+    // [!code highlight]
     router :reitit.core/router}]
+  // [!code highlight]
   (-> {:router router
-       :movies (queries/get-movies db)}
+       // [!code highlight]
+       :movies (queries/get-movie-list (:db context))}
       (views/home-page)
       (reitit-extras/render-html)))
 ;...
 ```
 
-Now once we reload the system in REPL `(reset)` we should be able to create a new moview using our form.
+### Frontend
 
-![Create movie](@/public/lite_create.png)
+And finally, we need to update our form such that it will send request to our new route:
+
+```clj title="src/myproject/views.clj"
+;...
+
+(defn form-input
+  // [!code highlight]
+  [{:keys [field-name field-type field-value attrs]}]
+  [:div
+   {:class ["flex" "flex-col"]}
+   [:input (merge {:class ["w-full" "border" "border-gray-300" "rounded-md" "px-3" "py-2"]
+                   :type field-type
+                   :name field-name
+                   // [!code highlight]
+                   :value (or field-value "")
+                   :placeholder (str "Enter " field-name)}
+                  attrs)]])
+
+(defn form
+  // [!code highlight]
+  [{:keys [router]}]
+  [:form
+   (cond-> {:id "form-create-movie"
+            :class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]
+            // [!code highlight]
+            :hx-post (reitit-extras/get-route router ::routes/movie-list)
+            // [!code highlight]
+            :hx-target "#form-create-movie"
+            // [!code highlight]
+            :hx-swap "outerHTML"})
+   // [!code highlight]
+   (reitit-extras/csrf-token-html)
+   ;...
+   ])
+
+(defn home-page
+  // [!code highlight]
+  [{:keys [movies router]}]
+  (base
+    [:div {:id "content"
+           :class ["container" "mx-auto" "p-6" "max-w-4xl"]}
+     [:div {:class ["mb-10" "flex" "justify-between" "items-center"]}
+      [:h1 {:class ["text-2xl" "font-semibold" "text-gray-800"]} "Movies Lite"]]
+     [:div {:class ["bg-white" "rounded-lg" "shadow-md" "overflow-hidden" "border"
+                    "border-gray-200"]}
+      ; ...
+      // [!code highlight]
+      (form {:router router})]]))
+```
+
+We need to pass `router` to the page view function to be able to build an url for creating a movie by its name.
+We need to pass `params` to the form inputs to be able to show them in case of validation error.
+Also we need to pass movies list to be able to render the table.
+
+Then we update form with `:hx-port` attribute with new route, `:hx-target` with the id of a table content
+that we added at previous step. We are going to return HTML for the form as main content of the response and replace the whole form with:
+`:hx-swap "outerHTML"`. A new table row with a movie will be added to the table using `:hx-swap-oob` attribute.
+
+To be able to send `POST` request we added a hidden input with csrf-token.
+
+Now once we reload the system in REPL `(reset)` we should be able to create a new movie using our form.
+
+![Create movie 1](@/public/lite_create_1.png)
+
+![Create movie 2](@/public/lite_create_2.png)
 
 ## Form errors
 
