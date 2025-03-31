@@ -4,17 +4,17 @@ description: Let's build your first application with Clojure Stack Lite
 icon: Play
 ---
 
-We just created a new project and ready to get started. Let's build a simple application.
+Now that we've created a new project, we're ready to get started. Let's build a simple application together.
 
-## After generating project
+## After Generating Your Project
 
-First thing is recommended to do is checking the code formatting, linting, tests and outdated deps.
+The first recommended step is to check the code formatting, linting, tests, and outdated dependencies:
 
 ```shell
 bb check
 ```
 
-Now we can initiate git-repository and commit initial setup:
+Next, let's initialize a git repository and commit the initial setup:
 
 ```shell
 git init
@@ -22,52 +22,52 @@ git add .
 git commit -am 'Initial commit'
 ```
 
-## Start server
+## Starting the Server
 
-Navigate to project root and run REPL:
+Navigate to your project root directory and start the REPL:
 
 ```shell
 cd myproject
 bb clj-repl
 ```
 
-Then once we are in the REPL we can run the application system with server, database and TailwindCSS CLI components:
+Once in the REPL, run the application system which includes the server, database, and TailwindCSS CLI components:
 
 ```shell
 user=> (reset)
 ```
 
-_TODO: add link to setup editor doc_
+_TODO: add link to editor setup documentation_
 
-## Change starter page
+## Modifying the Starter Page
 
-Let's change something on the starter page and see the result. Open `src/myproject/views.clj` file
-and replace ui component `:h1` to `[:h1 {:class ["text-5xl"]} "Hello world!"]`.
-After reloading the page you will see that title has been changed on the web page.
+Let's make a simple change to the starter page to see how updates work. Open the `src/myproject/views.clj` file
+and replace the `:h1` UI component with `[:h1 {:class ["text-5xl"]} "Hello world!"]`.
+After reloading the page in your browser, you'll see that the title has been updated.
 
 ![Clojure Stack Lite starter page](@/public/starter_hello.png)
 
-## Application system components
+## Application System Components
 
-The entry point of an application is `src/myproject/core.clj`. There is one function `main` that runs the system with production profile.
-We use Integrant as a framework for running all components of the system. Core components are `db` and `server` and they are defined in
-`src/myproject/db.clj` and `src/myproject/server.clj` appropriately. The defualt configuration of server component is described in the
-separate library `reitit-extras`, this is just shortcut for convenience. It has few options to extend server configuration.
-If you want to change or replace amything in the server configuration, just copy server definition from `reitit-extras` to your project.
+The entry point of the application is `src/myproject/core.clj`. It contains a `main` function that runs the system with the production profile.
+We use Integrant as a framework for managing all components of the system. The core components are `db` and `server`, which are defined in
+`src/myproject/db.clj` and `src/myproject/server.clj` respectively. The default configuration of the server component is provided by the
+`reitit-extras` library as a convenience. It offers several options to extend the server configuration.
+If you need to customize or replace anything in the server configuration, you can copy the server definition from `reitit-extras` to your project.
 
-In development mode entry point is `dev/user.clj`. There we start the same system with dev profile and an extension of config `resources/config.dev` that contains
-just one additional component to start `tailwindcss` CLI tool in watch mode to auto-reload css styles on file change. So it's started as part of the application system and we don't need to
+In development mode, the entry point is `dev/user.clj`. Here we start the same system with the dev profile and an extension from `resources/config.dev` that contains
+an additional component to run the `tailwindcss` CLI tool in watch mode. This automatically reloads CSS styles when files change. Since it's started as part of the application system, we don't need to
 run it separately.
 
-## The application
+## Building Our Application
 
-All set up and we are ready to create our application. As I mentioned earlier we are going to build movie list application called "Movies Lite".
-There will be an ability to add a new movie, show the list of movies and delete a row from the list.
+Now that everything is set up, we're ready to create our application. We'll build a movie list application called "Movies Lite".
+This application will allow users to add new movies, view the list of movies, and delete entries from the list.
 
-## Database structure
+## Database Structure
 
-For simplicity we will create one table called `movie` with fields `id`, `title`, `year`, `director`.
-To create this schema please add following database migration by creating a new file `resources/migrations/0002.up.sql` with content:
+For simplicity, we'll create a single table called `movie` with the fields `id`, `title`, `year`, and `director`.
+To create this schema, add the following database migration by creating a new file `resources/migrations/0002.up.sql` with this content:
 
 ```sql title="resources/migrations/0002.up.sql"
 CREATE TABLE movie (
@@ -78,24 +78,24 @@ CREATE TABLE movie (
 );
 ```
 
-Migrations are applied as part of the system start. So, to apply our new migrations we can run `(reset)` in the REPL.
-After it we can connect to our database using any SQLite client (for example [TablePlus](https://tableplus.com/)) and check that we actually created the table `movie`:
+Migrations are applied automatically when the system starts. To apply our new migration, run `(reset)` in the REPL.
+Afterward, you can connect to the database using any SQLite client (such as [TablePlus](https://tableplus.com/)) to verify that the `movie` table was created successfully:
 
 ![Movies DB table](@/public/lite_movies_db_table.png)
 
-## Application UI layout
+## Application UI Layout
 
-To visualise all parts of the application let's create a UI layout for our main page.
-Let's look at `src/myproject/views.clj`. This namespace contains functions that converts data to Hiccup templates.
-That we will convert to HTML at rendering response step. There is a `base` function that contains default setup for all pages
-with page title, static files and a placeholder for any content we want to show on the page.
+To visualize all parts of the application, let's create a UI layout for our main page.
+Let's examine `src/myproject/views.clj`. This namespace contains functions that convert data to Hiccup templates,
+which will be transformed into HTML during the response rendering process. The namespace includes a `base` function that provides the default setup for all pages,
+including the page title, static files, and a placeholder for any content we want to display.
 
-Mockup of the page we are going to build looks like:
+Here's a mockup of the page we're going to build:
 
 ![UI mockup](@/public/lite_mockup.png)
 
-There is a page title and a table with list of movies. Each row has button "Delete" at the last column.
-At the bottom of the table there is a form to create a new movie.
+The page features a title and a table listing movies. Each row has a "Delete" button in the last column.
+At the bottom of the table, there's a form for adding new movies.
 
 Our `home-page` function and additional functions will look like:
 
@@ -169,10 +169,9 @@ Our `home-page` function and additional functions will look like:
       (form)]]))
 ```
 
-We also moved list item, form and form inputs to separate components for convenience and as we will need to rendered it separately for created movie
-in the next section.
+We've separated the list item, form, and form inputs into individual components for better organization and reusability. This approach will be particularly helpful when we need to render these components separately for newly created movies in the next section.
 
-We need to update our `home-handler` to pass fake data for `movies` to show them on the page:
+Now, let's update our `home-handler` to pass some sample data for `movies` to display on the page:
 
 ```clojure title="src/myproject/handlers.clj"
 ; ...
@@ -192,13 +191,13 @@ After refreshing page in the browser it will look like:
 
 ![Page layout](@/public/lite_page_layout.png)
 
-## Create movie
+## Creating Movies
 
-We have a basic ui part for the table and form. Now we can add a new route and handler for creating a movie.
+Now that we have the basic UI components for the table and form, let's implement the functionality to create new movies by adding a route and handler.
 
-### Backend
+### Backend Implementation
 
-First, we add sql queries for creating and fetching a movies. Let's create a new file `queries.clj`:
+First, let's add SQL queries for creating and retrieving movies. Create a new file `queries.clj`:
 
 ```clj title="src/myproject/queries.clj"
 (ns myproject.queries
@@ -245,12 +244,12 @@ Now we can add a new handler for creating a movie:
       (response/header "Content-Type" "text/html")))
 ```
 
-Single parameter of a handler is `request`. Each handler will have a key `context` add to request by default (using middleware [`wrap-context`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L182))
-and a router. `context` has all system components of our application, so we can use a `db` component with connection
+The single parameter of a handler is the `request` object. Each handler automatically receives a `context` key added to the request by the [`wrap-context`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L182) middleware,
+as well as a router. The `context` contains all system components of our application, allowing us to access the `db` component with its connection
 pool to create a new movie.
 
-Also in the same response we return `views/list-item` ui component with newly created movie as [out-of-bound](https://htmx.org/examples/update-other-content/#oob)
-element that will be added at the end of the table. The table will be found by `id` `table-content` that we added to the table in the previous step.
+In the same response, we return the `views/list-item` UI component with the newly created movie as an [out-of-band](https://htmx.org/examples/update-other-content/#oob)
+element. This will be added to the end of the table. The table is identified by the `id` attribute `table-content` that we added in the previous step.
 
 Now let's add a new route for this handler.
 
@@ -272,9 +271,9 @@ Now let's add a new route for this handler.
 ```
 
 <Callout type="info">
- We do not add schema for request parameters as we are going to validate them in the handler itself to be able to return validation errors as part of the HTML response.
- That is why we got parameters in the handler from `params` key of the request that comes from [`wrap-nested-params`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L186-L187) middleware
- instead of the [`parameters-middleware`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L184), as the last one requires schema definition in the route.
+ We're not adding a schema for request parameters in the route definition because we'll validate them in the handler itself. This approach allows us to return validation errors as part of the HTML response.
+ This is why we retrieve parameters from the `params` key of the request, which comes from the [`wrap-nested-params`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L186-L187) middleware,
+ rather than using the [`parameters-middleware`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L184), which would require a schema definition in the route.
 </Callout>
 
 And last thing. To show the home page properly let's update the handler for it passing `router` and `movies` list from the database:
@@ -294,9 +293,9 @@ And last thing. To show the home page properly let's update the handler for it p
 ;...
 ```
 
-### Frontend
+### Frontend Implementation
 
-And finally, we need to update our form such that it will send request to our new route:
+Finally, we need to update our form to send requests to our newly created route:
 
 ```clj title="src/myproject/views.clj"
 ;...
@@ -346,29 +345,34 @@ And finally, we need to update our form such that it will send request to our ne
       (form {:router router})]]))
 ```
 
-We need to pass `router` to the page view function to be able to build an url for creating a movie by its name.
-We need to pass `params` to the form inputs to be able to show them in case of validation error.
-Also we need to pass movies list to be able to render the table.
+We need to pass several important parameters to our components:
 
-Then we update form with `:hx-port` attribute with new route, `:hx-target` with the id of a table content
-that we added at previous step. We are going to return HTML for the form as main content of the response and replace the whole form with:
-`:hx-swap "outerHTML"`. A new table row with a movie will be added to the table using `:hx-swap-oob` attribute.
+1. The `router` to the page view function, allowing us to build URLs for creating movies by name
+2. The `params` to form inputs so we can display them in case of validation errors
+3. The `movies` list to render the table content
 
-To be able to send `POST` request we added a hidden input with csrf-token.
+We've updated the form with several HTMX attributes:
+- `:hx-post` with the new route URL
+- `:hx-target` with the ID of the table content we added earlier
+- `:hx-swap "outerHTML"` to replace the entire form with the response content
 
-Now once we reload the system in REPL `(reset)` we should be able to create a new movie using our form.
+When a new movie is created, a new table row will be added to the table using the `:hx-swap-oob` attribute in our handler response.
+
+To enable secure `POST` requests, we've added a hidden input with a CSRF token.
+
+Now, after reloading the system in the REPL with `(reset)`, we should be able to create new movies using our form:
 
 ![Create movie 1](@/public/lite_create_1.png)
 
 ![Create movie 2](@/public/lite_create_2.png)
 
-## Form errors
+## Form Validation
 
-Our for can create a movie but what if we don't fill title? It will throw an error, because this field is required in the database.
-Let's add parameters validation before inserting data to the database. We also need showing validation errors on the page.
+Our form can create a movie, but what happens if we don't fill in the title field? It will throw an error because this field is required in the database.
+Let's add parameter validation before inserting data into the database and display validation errors on the page.
 
-Usually, we would describe params validation as part of router using Malli, but to be able to return different HTML with validation messages
-we will move this validation to the handler itself.
+Typically, we would define parameter validation as part of the router using Malli. However, to return custom HTML with validation messages,
+we'll implement this validation directly in the handler.
 
 ```clojure title="src/myproject/handlers.clj"
 (ns myproject.handlers
@@ -439,8 +443,8 @@ we will move this validation to the handler itself.
           (response/header "Content-Type" "text/html")))))
 ```
 
-If we found validation errors we return them as part of the response to the form.
-If the request is valid we create a new movie and return it as part of the response along with the empty form, exactly as before.
+If validation errors are found, we return them as part of the response to the form, allowing users to correct their input.
+If the request is valid, we create a new movie and return it as part of the response along with an empty form, just as we did before.
 
 
 On the frontend part we add `errors` to the form input and show them below the input field.
