@@ -9,7 +9,6 @@ We just created a new project and ready to get started. Let's build a simple app
 ## After generating project
 
 First thing is recommended to do is checking the code formatting, linting, tests and outdated deps.
-You will need [Docker](https://docs.docker.com/engine/install/) installed on your system as tests are running Testcontainers using Docker.
 
 ```shell
 bb check
@@ -548,6 +547,120 @@ Then we add `"closest tr"` as `:hx-target` to remove the row from the table. Als
 ```
 
 Now, clicking on the delete button will remove the row from the table.
+
+## Testing
+
+We have a simple application that we can test. Let's start with fixing existing test:
+
+```clojure title="test/myproject/home_test.clj"
+; ...
+
+(deftest test-home-page-is-loaded-correctly
+  (let [server (::server/server ig-extras/*test-system*)
+        url (reitit-extras/get-server-url server :host)
+        body (-> (hato/get url)
+                 :body
+                 (hickory/parse)
+                 (hickory/as-hickory))]
+    // [!code highlight]
+    (is (= "Movies Lite"
+           (->> body
+                (select/select (select/tag :h1))
+                (first)
+                :content
+                (first))))))
+```
+
+Now if you run `bb test` it should pass.
+
+We can update this test to check if we can show a movie on a page:
+
+```clojure title="test/myproject/home_test.clj"
+(ns myproject.home-test
+  (:require ; ...
+            // [!code highlight]
+            [myproject.queries :as queries]
+            [myproject.server :as-alias server]
+            ;...
+            ))
+
+(deftest test-home-page-is-loaded-correctly
+  (let [server (::server/server ig-extras/*test-system*)
+        // [!code highlight]
+        db (::db/db ig-extras/*test-system*)
+        url (reitit-extras/get-server-url server :host)
+        // [!code highlight]
+        _ (queries/create-movie db {:title "The Matrix"
+                                    // [!code highlight]
+                                    :year 1999
+                                    // [!code highlight]
+                                    :director "Lana Wachowski, Lilly Wachowski"})
+        body (-> (http/get url)
+                 :body
+                 (hickory/parse)
+                 (hickory/as-hickory))]
+    (is (= "Movies Lite"
+           (->> body
+                (select/select (select/tag :h1))
+                (first)
+                :content
+                (first))))
+    // [!code highlight]
+    (is (= ["The Matrix" "1999" "Lana Wachowski, Lilly Wachowski"]
+           // [!code highlight]
+           (->> body
+                // [!code highlight]
+                (select/select (select/tag :td))
+                // [!code highlight]
+                (map (comp first :content))
+                // [!code highlight]
+                (butlast))))))
+```
+
+Now we can add test for creating a movie:
+
+```clojure title="test/myproject/home_test.clj"
+(deftest test-create-movie-ok
+  (let [server (::server/server ig-extras/*test-system*)
+        db (::db/db ig-extras/*test-system*)
+        base-url (reitit-extras/get-server-url server :host)
+        url (str base-url "/movies")
+        {:keys [csrf-token cookies]} (test-utils/get-csrf-token-and-cookies base-url)]
+    ; Create a new movie
+    (http/post url {:cookies cookies
+                    :form-params {test-utils/CSRF-TOKEN-KEY csrf-token
+                                  :title "The Matrix"
+                                  :year 1999
+                                  :director "Lana Wachowski, Lilly Wachowski"}})
+
+    (is (= [{:director "Lana Wachowski, Lilly Wachowski"
+             :title "The Matrix"
+             :year 1999}]
+           (db/exec! db {:select [:title :year :director]
+                         :from [:movie]})))))
+```
+
+Notice how we get csrf-token from the page and add it to the request header using cookies.
+
+And one for deleting a movie:
+
+```clojure title="test/myproject/home_test.clj"
+(deftest test-delete-movie-ok
+  (let [server (::server/server ig-extras/*test-system*)
+        db (::db/db ig-extras/*test-system*)
+        base-url (reitit-extras/get-server-url server :host)
+        movie (queries/create-movie db {:title "The Matrix"
+                                        :year 1999
+                                        :director "Lana Wachowski, Lilly Wachowski"})
+        url (str base-url "/movies/" (:id movie))
+        {:keys [csrf-token cookies]} (test-utils/get-csrf-token-and-cookies base-url)]
+    ; Delete the movie
+    (http/delete url {:cookies cookies
+                      :headers {test-utils/CSRF-TOKEN-HEADER csrf-token}})
+
+    (is (= [] (db/exec! db {:select [:*]
+                            :from [:movie]})))))
+```
 
 ## Summary
 
