@@ -551,9 +551,9 @@ After resetting the system in the REPL with `(reset)` and refreshing the page, w
 
 This approach provides immediate feedback to users without page refreshes, creating a smooth, app-like experience while maintaining the simplicity of server-side rendering.
 
-## Delete a movie
+## Delete a Movie
 
-To delete a movie let's add query, handler and route for it. The route will look like this:
+To delete a movie, let's add a query, handler, and route for it. The route will look like this:
 
 ```clojure title="src/myproject/queries.clj"
 ;...
@@ -588,8 +588,7 @@ To delete a movie let's add query, handler and route for it. The route will look
                    :parameters {:path {:id pos-int?}}}}]]]])
 ```
 
-Now we can add a delete button to each row of the table. We will use `:hx-delete` attribute to send a request to the server.
-Then we add `"closest tr"` as `:hx-target` to remove the row from the table. Also we need to add csrf token to the request header.
+Now we can add a delete button to each row of the table. We'll use the `:hx-delete` attribute to send a request to the server. We'll add `"closest tr"` as `:hx-target` to remove the row from the table. We also need to add a CSRF token to the request header.
 
 ```clojure title="src/myproject/views.clj"
 ; ...
@@ -639,7 +638,7 @@ Now, clicking on the delete button will remove the row from the table.
 
 ## Testing
 
-We have a simple application that we can test. Let's start with fixing existing test:
+We have a simple application that we can test. Let's start with fixing the existing test:
 
 ```clojure title="test/myproject/home_test.clj"
 ; ...
@@ -661,7 +660,7 @@ We have a simple application that we can test. Let's start with fixing existing 
                 (first))))))
 ```
 
-Now if you run `bb test` it should pass.
+Now if you run `bb test`, it should pass.
 
 We can update this test to check if we can show a movie on a page:
 
@@ -709,7 +708,7 @@ We can update this test to check if we can show a movie on a page:
                 (butlast))))))
 ```
 
-Now we can add test for creating a movie:
+Now we can add a test for creating a movie:
 
 ```clojure title="test/myproject/home_test.clj"
 (deftest test-create-movie-ok
@@ -732,7 +731,7 @@ Now we can add test for creating a movie:
                          :from [:movie]})))))
 ```
 
-Notice how we get csrf-token from the page and add it to the request header using cookies.
+Notice how we get the CSRF token from the page and add it to the request header using cookies.
 
 And one for deleting a movie:
 
@@ -762,17 +761,17 @@ bb test
 
 ## Summary
 
-In this quick tutorial we created a simple application with Clojure Stack Lite.
-We've seen how to create a new project, start the server and create a simple application with a form and a table.
-We performed `POST` request, `GET` reuest and `DELETE` request using HTMX, with form validation and error handling.
+In this quick tutorial, we created a simple application with Clojure Stack Lite.
+We've seen how to create a new project, start the server, and build a simple application with a form and a table.
+We performed `POST`, `GET`, and `DELETE` requests using HTMX, with form validation and error handling.
 
-For real-world application you might want to add more features like: user registration and authentication,
-list pagination, etc. But this is a good starting point to build your own application.
+For real-world applications, you might want to add more features like user registration and authentication,
+list pagination, etc. This tutorial provides a solid foundation to build your own application.
 
 ## Next steps
 
-From this point you can continue with deploying your application to production or learn more about
-project structure and how to manage the project in the "Guide" section.
+From here, you can proceed with deploying your application to production or learn more about
+project structure and management in the "Guide" section.
 
 import { Rocket, BookOpenText } from 'lucide-react';
 
