@@ -27,7 +27,6 @@ git commit -am 'Initial commit'
 Navigate to your project root directory and start the REPL:
 
 ```shell
-cd myproject
 bb clj-repl
 ```
 
@@ -42,7 +41,7 @@ _TODO: add link to editor setup documentation_
 ## Modifying the Starter Page
 
 Let's make a simple change to the starter page to see how updates work. Open the `src/myproject/views.clj` file
-and replace the `:h1` UI component with `[:h1 {:class ["text-5xl"]} "Hello world!"]`.
+and replace the `:h1` UI component at function `home-page` with `[:h1 {:class ["text-5xl"]} "Hello world!"]`.
 After reloading the page in your browser, you'll see that the title has been updated.
 
 ![Clojure Stack Lite starter page](@/public/starter_hello.png)
@@ -52,7 +51,7 @@ After reloading the page in your browser, you'll see that the title has been upd
 The entry point of the application is `src/myproject/core.clj`. It contains a `main` function that runs the system with the production profile.
 We use Integrant as a framework for managing all components of the system. The core components are `db` and `server`, which are defined in
 `src/myproject/db.clj` and `src/myproject/server.clj` respectively. The default configuration of the server component is provided by the
-`reitit-extras` library as a convenience. It offers several options to extend the server configuration.
+[`reitit-extras`](https://github.com/abogoyavlensky/reitit-extras) small helper library for convenience. It offers several options to extend the server configuration.
 If you need to customize or replace anything in the server configuration, you can copy the server definition from `reitit-extras` to your project.
 
 In development mode, the entry point is `dev/user.clj`. Here we start the same system with the dev profile and an extension from `resources/config.dev` that contains
@@ -79,6 +78,7 @@ CREATE TABLE movie (
 ```
 
 Migrations are applied automatically when the system starts. To apply our new migration, run `(reset)` in the REPL.
+The database file will be created at the root directory of the project with the name `myproject.sqlite`.
 Afterward, you can connect to the database using any SQLite client (such as [TablePlus](https://tableplus.com/)) to verify that the `movie` table was created successfully:
 
 ![Movies DB table](@/public/lite_movies_db_table.png)
@@ -126,8 +126,8 @@ Our `home-page` function and additional functions will look like:
 (defn form
   []
   [:form
-   (cond-> {:id "form-create-movie"
-            :class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]})
+   {:id "form-create-movie"
+    :class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]}
    [:div {:class ["grid" "grid-cols-1" "md:grid-cols-4" "gap-4"]}
     (form-input {:field-name "title"
                  :field-type "text"})
@@ -187,7 +187,7 @@ Now, let's update our `home-handler` to pass some sample data for `movies` to di
       (reitit-extras/render-html)))
 ```
 
-After refreshing page in the browser it will look like:
+After running `(reset)` in the REPL and refreshing page in the browser it will look like:
 
 ![Page layout](@/public/lite_page_layout.png)
 
@@ -197,7 +197,7 @@ Now that we have the basic UI components for the table and form, let's implement
 
 ### Backend Implementation
 
-First, let's add SQL queries for creating and retrieving movies. Create a new file `queries.clj`:
+First, let's add SQL queries for creating and retrieving movies. Create a new file `src/myproject/queries.clj`:
 
 ```clj title="src/myproject/queries.clj"
 (ns myproject.queries
@@ -244,8 +244,8 @@ Now we can add a new handler for creating a movie:
       (response/header "Content-Type" "text/html")))
 ```
 
-The single parameter of a handler is the `request` object. Each handler automatically receives a `context` key added to the request by the [`wrap-context`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L182) middleware,
-as well as a router. The `context` contains all system components of our application, allowing us to access the `db` component with its connection
+The single parameter of a handler is the `request` map. Each handler automatically receives a `:context` key added to the request by the [`wrap-context`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L182) middleware,
+as well as a router. The `:context` contains all system components of our application, allowing us to access the `db` component with its connection
 pool to create a new movie.
 
 In the same response, we return the `views/list-item` UI component with the newly created movie as an [out-of-band](https://htmx.org/examples/update-other-content/#oob)
@@ -276,11 +276,12 @@ Now let's add a new route for this handler.
  rather than using the [`parameters-middleware`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L184), which would require a schema definition in the route.
 </Callout>
 
-And last thing. To show the home page properly let's update the handler for it passing `router` and `movies` list from the database:
+And last thing. To show the home page properly let's update the handler for it passing `router` and `movies` list from the database instead of static value:
 
 ```clj title="src/myproject/handlers.clj"
 ;...
 (defn home-handler
+  // [!code highlight]
   [{:keys [context]
     // [!code highlight]
     router :reitit.core/router}]
@@ -298,6 +299,13 @@ And last thing. To show the home page properly let's update the handler for it p
 Finally, we need to update our form to send requests to our newly created route:
 
 ```clj title="src/myproject/views.clj"
+(ns myproject.views
+  (:require ; ...
+            // [!code highlight]
+            [reitit-extras.core :as reitit-extras]
+            // [!code highlight]
+            [myproject.routes :as-alias routes]))
+
 ;...
 
 (defn form-input
@@ -315,18 +323,32 @@ Finally, we need to update our form to send requests to our newly created route:
 
 (defn form
   // [!code highlight]
-  [{:keys [router]}]
+  [{:keys [router params]}]
   [:form
-   (cond-> {:id "form-create-movie"
-            :class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]
-            // [!code highlight]
-            :hx-post (reitit-extras/get-route router ::routes/movie-list)
-            // [!code highlight]
-            :hx-target "#form-create-movie"
-            // [!code highlight]
-            :hx-swap "outerHTML"})
+   {:id "form-create-movie"
+    :class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]
+    // [!code highlight]
+    :hx-post (reitit-extras/get-route router ::routes/movie-list)
+    // [!code highlight]
+    :hx-target "#form-create-movie"
+    // [!code highlight]
+    :hx-swap "outerHTML"}
    // [!code highlight]
    (reitit-extras/csrf-token-html)
+   [:div {:class ["grid" "grid-cols-1" "md:grid-cols-4" "gap-4"]}
+       (form-input {:field-name "title"
+                    :field-type "text"
+                    // [!code highlight]
+                    :field-value (:title params)})
+       (form-input {:field-name "year"
+                    :field-type "number"
+                    // [!code highlight]
+                    :field-value (:year params)
+                    :attrs {:min 1888}})
+       (form-input {:field-name "director"
+                    :field-type "text"
+                    // [!code highlight]
+                    :field-value (:director params)})
    ;...
    ])
 
@@ -345,11 +367,10 @@ Finally, we need to update our form to send requests to our newly created route:
       (form {:router router})]]))
 ```
 
-We need to pass several important parameters to our components:
+We need to pass a couple of important parameters to our components:
 
 1. The `router` to the page view function, allowing us to build URLs for creating movies by name
-2. The `params` to form inputs so we can display them in case of validation errors
-3. The `movies` list to render the table content
+2. The `movies` list to render the table content
 
 We've updated the form with several HTMX attributes:
 - `:hx-post` with the new route URL
@@ -358,7 +379,7 @@ We've updated the form with several HTMX attributes:
 
 When a new movie is created, a new table row will be added to the table using the `:hx-swap-oob` attribute in our handler response.
 
-To enable secure `POST` requests, we've added a hidden input with a CSRF token.
+To enable secure `POST` requests, we've added a hidden input with a CSRF token `(reitit-extras/csrf-token-html)`.
 
 Now, after reloading the system in the REPL with `(reset)`, we should be able to create new movies using our form:
 
@@ -368,7 +389,7 @@ Now, after reloading the system in the REPL with `(reset)`, we should be able to
 
 ## Form Validation
 
-Our form can create a movie, but what happens if we don't fill in the title field? It will throw an error because this field is required in the database.
+Our form can create a movie, but what happens if we don't fill in the title field? It return an error because this field is required in the database.
 Let's add parameter validation before inserting data into the database and display validation errors on the page.
 
 Typically, we would define parameter validation as part of the router using Malli. However, to return custom HTML with validation messages,
@@ -460,17 +481,17 @@ On the frontend part we add `errors` to the form input and show them below the i
    // [!code highlight]
    (for [err errors]
      // [!code highlight]
-     [:p {:class ["text-red-500" "text-xs" "mt-1" "h-4"]} (str/capitalize err)])])
+     [:p {:class ["text-red-500" "text-xs" "mt-1" "h-4"]} err])])
 
 (defn form
   // [!code highlight]
   [{:keys [router errors params]}]
   [:form
-   (cond-> {:id "form-create-movie"
-            :class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]
-            :hx-post (reitit-extras/get-route router ::routes/movie-list)
-            :hx-target "#form-create-movie"
-            :hx-swap "outerHTML"})
+   {:id "form-create-movie"
+    :class ["border-t" "border-gray-200" "bg-gray-50" "p-6"]
+    :hx-post (reitit-extras/get-route router ::routes/movie-list)
+    :hx-target "#form-create-movie"
+    :hx-swap "outerHTML"}
    (reitit-extras/csrf-token-html)
    [:div {:class ["grid" "grid-cols-1" "md:grid-cols-4" "gap-4"]}
     (form-input {:field-name "title"
@@ -496,9 +517,46 @@ On the frontend part we add `errors` to the form input and show them below the i
 
 ```
 
-![Create form validation errors](@/public/lite_create_2.png)
+After reseting the system in the REPL `(reset)` and refreshing the page, we can see the form validation errors when we try to create a movie without filling in the required fields:
+
+![Create form validation errors](@/public/lite_create_errors.png)
 
 ## Delete a movie
+
+To delete a movie let's add query, handler and route for it. The route will look like this:
+
+```clojure title="src/myproject/queries.clj"
+;...
+(defn delete-movie
+  [db {:keys [id]}]
+  (db/exec-one! db {:delete-from :movie
+                    :where [:= :id id]
+                    :returning [:*]}))
+```
+
+```clojure title="src/myproject/handlers.clj"
+; ...
+(defn delete-movie-handler
+  [{:keys [context parameters]}]
+  (queries/delete-movie (:db context) {:id (get-in parameters [:path :id])})
+  (response/response nil))
+```
+
+```clojure title="src/myproject/routes.clj"
+;...
+(def routes
+  [; ...
+   ["/movies"
+    ; ...
+    // [!code highlight]
+    ["/:id"
+     // [!code highlight]
+     ["" {:name ::movie-details
+          // [!code highlight]
+          :delete {:handler handlers/delete-movie-handler
+                   // [!code highlight]
+                   :parameters {:path {:id pos-int?}}}}]]]])
+```
 
 Now we can add a delete button to each row of the table. We will use `:hx-delete` attribute to send a request to the server.
 Then we add `"closest tr"` as `:hx-target` to remove the row from the table. Also we need to add csrf token to the request header.
@@ -507,17 +565,15 @@ Then we add `"closest tr"` as `:hx-target` to remove the row from the table. Als
 ; ...
 
 (defn list-item
+  // [!code highlight]
   [{:keys [router movie]}]
   [:tr
    [:td {:class ["px-6" "py-4" "text-gray-800"]} (:title movie)]
    [:td {:class ["px-6" "py-4" "text-gray-800"]} (:year movie)]
    [:td {:class ["px-6" "py-4" "text-gray-800"]} (:director movie)]
    [:td {:class ["px-6" "py-4"]}
-   // [!code highlight]
     [:button
-    // [!code highlight]
      {:class ["text-red-400" "hover:bg-gray-50" "bg-white" "border"
-              // [!code highlight]
               "border-gray-300" "rounded-md" "px-3" "py-1" "cursor-pointer"]
       // [!code highlight]
       :hx-delete (reitit-extras/get-route router ::routes/movie-details {:path {:id (:id movie)}})
@@ -528,7 +584,6 @@ Then we add `"closest tr"` as `:hx-target` to remove the row from the table. Als
       :hx-target "closest tr"
       // [!code highlight]
       :hx-swap "outerHTML"}
-     // [!code highlight]
      "Delete"]]])
 
 (defn home-page
@@ -544,7 +599,7 @@ Then we add `"closest tr"` as `:hx-target` to remove the row from the table. Als
         [:tbody {:id "table-content"
                  :class ["bg-white" "divide-y" "divide-gray-200"]}
          (for [movie movies]
-          // [!code highlight]
+           // [!code highlight]
            (list-item {:router router
                        :movie movie}))]]]
       (form {:router router})]]))
@@ -569,6 +624,7 @@ We have a simple application that we can test. Let's start with fixing existing 
     // [!code highlight]
     (is (= "Movies Lite"
            (->> body
+                // [!code highlight]
                 (select/select (select/tag :h1))
                 (first)
                 :content
