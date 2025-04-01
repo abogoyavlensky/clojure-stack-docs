@@ -193,11 +193,11 @@ After running `(reset)` in the REPL and refreshing page in the browser it will l
 
 ## Creating Movies
 
-Now that we have the basic UI components for the table and form, let's implement the functionality to create new movies by adding a route and handler.
+Now that we have the basic UI components for the table and form, let's implement the functionality to create new movies. This will involve adding database queries, creating a handler, and defining a route for our movie creation feature.
 
 ### Backend Implementation
 
-First, let's add SQL queries for creating and retrieving movies. Create a new file `src/myproject/queries.clj`:
+First, let's create the database queries needed for retrieving and creating movies. Create a new file `src/myproject/queries.clj` with the following content:
 
 ```clj title="src/myproject/queries.clj"
 (ns myproject.queries
@@ -218,7 +218,11 @@ First, let's add SQL queries for creating and retrieving movies. Create a new fi
                     :returning [:*]}))
 ```
 
-Now we can add a new handler for creating a movie:
+These two functions handle our database operations:
+- `get-movie-list` retrieves all movies from the database, ordered by ID
+- `create-movie` inserts a new movie record and returns the created entry with all its fields
+
+Next, we'll create a handler for processing movie creation requests:
 
 ```clojure title="src/myproject/handlers.clj"
 (ns myproject.handlers
@@ -244,14 +248,22 @@ Now we can add a new handler for creating a movie:
       (response/header "Content-Type" "text/html")))
 ```
 
-The single parameter of a handler is the `request` map. Each handler automatically receives a `:context` key added to the request by the [`wrap-context`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L182) middleware,
-as well as a router. The `:context` contains all system components of our application, allowing us to access the `db` component with its connection
-pool to create a new movie.
+Let's break down how this handler works:
 
-In the same response, we return the `views/list-item` UI component with the newly created movie as an [out-of-band](https://htmx.org/examples/update-other-content/#oob)
-element. This will be added to the end of the table. The table is identified by the `id` attribute `table-content` that we added in the previous step.
+1. The handler receives a `request` map as its single parameter
+2. From this request, it extracts:
+   - The `router` from `:reitit.core/router`
+   - The application `context` and form `params`
+3. It then:
+   - Creates a new movie in the database using `queries/create-movie`
+   - Renders a fresh form and the newly created movie as a table row
+   - Returns the HTML response with the appropriate content type
 
-Now let's add a new route for this handler.
+The `:context` key is automatically added to the request by the [`wrap-context`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L182) middleware. This context contains all system components, including our database connection pool.
+
+The response uses HTMX's [out-of-band](https://htmx.org/examples/update-other-content/#oob) swap feature to add the new movie row to the end of our table without refreshing the entire page. The `hx-swap-oob` attribute targets the table body with the ID `table-content` that we defined earlier.
+
+Now, let's define a route for this handler in our routes configuration:
 
 ```clj title="src/myproject/routes.clj"
 ; ...
@@ -271,12 +283,12 @@ Now let's add a new route for this handler.
 ```
 
 <Callout type="info">
- We're not adding a schema for request parameters in the route definition because we'll validate them in the handler itself. This approach allows us to return validation errors as part of the HTML response.
- This is why we retrieve parameters from the `params` key of the request, which comes from the [`wrap-nested-params`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L186-L187) middleware,
- rather than using the [`parameters-middleware`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L184), which would require a schema definition in the route.
+ We're intentionally not adding a schema for request parameters in the route definition. Instead, we'll validate parameters directly in the handler (in a later section). This approach gives us more flexibility to return validation errors as part of the HTML response.
+ 
+ We retrieve parameters from the `params` key of the request, which is provided by the [`wrap-nested-params`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L186-L187) middleware, rather than using the [`parameters-middleware`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L184).
 </Callout>
 
-And last thing. To show the home page properly let's update the handler for it passing `router` and `movies` list from the database instead of static value:
+Finally, we need to update our home page handler to fetch movies from the database instead of using static data:
 
 ```clj title="src/myproject/handlers.clj"
 ;...
@@ -296,7 +308,7 @@ And last thing. To show the home page properly let's update the handler for it p
 
 ### Frontend Implementation
 
-Finally, we need to update our form to send requests to our newly created route:
+With our backend ready, let's update the frontend to connect our form to the new route. We'll modify the form to send data to our backend and handle the response appropriately.
 
 ```clj title="src/myproject/views.clj"
 (ns myproject.views
@@ -367,19 +379,29 @@ Finally, we need to update our form to send requests to our newly created route:
       (form {:router router})]]))
 ```
 
-We need to pass a couple of important parameters to our components:
+Let's examine the key changes we've made to connect our frontend with the backend:
 
-1. The `router` to the page view function, allowing us to build URLs for creating movies by name
-2. The `movies` list to render the table content
+1. **Required imports**:
+   - We import `reitit-extras.core` for route generation and CSRF protection
+   - We import `myproject.routes` as an alias to reference our route names
 
-We've updated the form with several HTMX attributes:
-- `:hx-post` with the new route URL
-- `:hx-target` with the ID of the table content we added earlier
-- `:hx-swap "outerHTML"` to replace the entire form with the response content
+2. **Form component enhancements**:
+   - We've updated the `form-input` function to accept and display field values
+   - The `form` component now accepts `router` and `params` as arguments
 
-When a new movie is created, a new table row will be added to the table using the `:hx-swap-oob` attribute in our handler response.
+3. **HTMX integration**:
+   - `:hx-post` - Specifies the endpoint for form submission using the router to generate the correct URL
+   - `:hx-target` - Targets the form itself for replacement
+   - `:hx-swap` - Replaces the entire form with the response content
+   - We include a CSRF token for secure form submissions
 
-To enable secure `POST` requests, we've added a hidden input with a CSRF token `(reitit-extras/csrf-token-html)`.
+4. **Home page updates**:
+   - The `home-page` function now accepts both `movies` and `router` parameters
+   - It passes the router to the form component to enable proper URL generation
+
+When a user submits the form, HTMX will send a POST request to our backend. The handler will process the request, create a new movie, and return HTML that includes:
+1. A fresh form (replacing the current one)
+2. A new table row with the movie data (added to the table via the out-of-band swap)
 
 Now, after reloading the system in the REPL with `(reset)`, we should be able to create new movies using our form:
 
