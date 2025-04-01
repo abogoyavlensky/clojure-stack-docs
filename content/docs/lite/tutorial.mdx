@@ -639,6 +639,8 @@ We can update this test to check if we can show a movie on a page:
 (ns myproject.home-test
   (:require ; ...
             // [!code highlight]
+            [myproject.db :as db]
+            // [!code highlight]
             [myproject.queries :as queries]
             [myproject.server :as-alias server]
             ;...
@@ -722,13 +724,19 @@ And one for deleting a movie:
                             :from [:movie]})))))
 ```
 
+All tests should pass:
+
+```shell
+bb test
+```
+
 ## Summary
 
 In this quick tutorial we created a simple application with Clojure Stack Lite.
 We've seen how to create a new project, start the server and create a simple application with a form and a table.
 We performed `POST` request, `GET` reuest and `DELETE` request using HTMX, with form validation and error handling.
 
-For real-world application you might want to add more features like: user authentication/authorization,
+For real-world application you might want to add more features like: user registration and authentication,
 list pagination, etc. But this is a good starting point to build your own application.
 
 ## Next steps
