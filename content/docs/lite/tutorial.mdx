@@ -411,11 +411,11 @@ Now, after reloading the system in the REPL with `(reset)`, we should be able to
 
 ## Form Validation
 
-Our form can create a movie, but what happens if we don't fill in the title field? It return an error because this field is required in the database.
-Let's add parameter validation before inserting data into the database and display validation errors on the page.
+Our form can create a movie, but what happens if a user doesn't fill in required fields? Without validation, we'd store empty values to the database. Let's implement proper validation to provide a better user experience.
 
-Typically, we would define parameter validation as part of the router using Malli. However, to return custom HTML with validation messages,
-we'll implement this validation directly in the handler.
+We'll add parameter validation before inserting data into the database and display user-friendly error messages on the page.
+
+Typically, we would define parameter validation as part of the router using Malli schemas. However, to return custom HTML with validation messages directly in the form, we'll implement validation in the handler instead.
 
 ```clojure title="src/myproject/handlers.clj"
 (ns myproject.handlers
@@ -450,7 +450,7 @@ we'll implement this validation directly in the handler.
 
 
 (defn create-movie-handler
-  "Render a new table item with newly created movie."
+  "Render a new table item with newly created movie or return validation errors."
   [{router :reitit.core/router
     :keys [context params]}]
   // [!code highlight]
@@ -486,11 +486,7 @@ we'll implement this validation directly in the handler.
           (response/header "Content-Type" "text/html")))))
 ```
 
-If validation errors are found, we return them as part of the response to the form, allowing users to correct their input.
-If the request is valid, we create a new movie and return it as part of the response along with an empty form, just as we did before.
-
-
-On the frontend part we add `errors` to the form input and show them below the input field.
+Now let's update our frontend components to display validation errors. We'll modify both the `form-input` and `form` components to handle and display error messages.  
 
 ```clojure title="src/myproject/views.clj"
 ; ...
@@ -539,9 +535,21 @@ On the frontend part we add `errors` to the form input and show them below the i
 
 ```
 
-After reseting the system in the REPL `(reset)` and refreshing the page, we can see the form validation errors when we try to create a movie without filling in the required fields:
+After resetting the system in the REPL with `(reset)` and refreshing the page, we can test our validation by submitting the form with empty fields. The system will display appropriate error messages for each invalid field:
 
 ![Create form validation errors](@/public/lite_create_errors.png)
+
+### How the Validation Flow Works
+
+1. **User submits the form** -> HTMX sends a POST request to our endpoint
+2. **Server validates the input**:
+   - If invalid -> Returns the form with error messages
+   - If valid -> Creates the movie and returns updated HTML
+3. **HTMX updates the DOM**:
+   - Replaces the form with the response
+   - Adds the new movie row to the table (if validation passed)
+
+This approach provides immediate feedback to users without page refreshes, creating a smooth, app-like experience while maintaining the simplicity of server-side rendering.
 
 ## Delete a movie
 
