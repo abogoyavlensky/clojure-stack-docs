@@ -12,15 +12,15 @@ Also it will configure the run configuration for REPL. We will need just slightl
 
 1. At the top right corner open `REPL for myproject` -> `Edit Configurations...`
 
-![Clojure Stack Lite starter page](@/public/lite_idea_run_config.png)
+![Clojure Stack Lite](@/public/lite_idea_run_config.png)
 
 2. Add optoins `-A:user:dev:test` and press `OK`:
 
-![Clojure Stack Lite starter page](@/public/lite_idea_aliases.png)
+![Clojure Stack Lite](@/public/lite_idea_aliases.png)
 
 3. Now you can run the REPL, execute `(reset)` in it and start coding.
 
-![Clojure Stack Lite starter page](@/public/lite_idea_run_repl.png)
+![Clojure Stack Lite](@/public/lite_idea_run_repl.png)
 
 <Callout title="Tip" type="info">
     It is convenient to configure the REPL command and bind it to a keyboard shortcut. So you can quickly run `(reset)` by keypress.
@@ -30,12 +30,133 @@ Also it will configure the run configuration for REPL. We will need just slightl
 
 ### VSCode with Calva
 
+Open project in VSCode with Calva extension. It will automatically detect the project structure.
+
+1. Let's start the REPL by running "Calva: Start a Project REPL and Connect (aka Jack-In)":
+
+![Clojure Stack Lite](@/public/lite_calva_start_repl.png)
+
+2. Select `deps.edn` configuration in the popup:
+
+![Clojure Stack Lite](@/public/lite_calva_deps.png)
+
+3. Select `dev` and `test` aliases in the next popup:
+
+![Clojure Stack Lite](@/public/lite_calva_aliases.png)
+
+Now we have REPL running and can execute `(reset)` in it to start the application. To do this, navigate to `dev/user.clj` file:
+
+![Clojure Stack Lite](@/public/lite_calva_user_clj.png)
+
+and run the command "Calva: Evaluate Current Form":
+
+![Clojure Stack Lite](@/public/lite_calva_run_current_form.png)
+
+The system will be started in the REPL:
+
+![Clojure Stack Lite](@/public/lite_calva_repl_system.png)
+
 ## REPL
+
+The REPL is the main entry point for development. You can run it from the terminal or from your IDE as we've seen in the previous section.
+We have some convenient commands preconfigured for you in the `dev/user.clj` file in the `(comment ...)` section at the bottom of the file.
+
+Let's look at them:
+
+1. `(reset)` - this command will start the application and automatically reload it on code changes.
+2. `(stop)` - this command will stop the application.
+3. (run-all-tests) - this command will run all tests in the project.
+4. `(repl-deps/sync-deps)` - this command will fetch new dependencies from the `deps.edn` and loads them into the REPL.
 
 ## mise
 
-## CSS auto-reload
+In this project template we use [`mise-en-place`](https://mise.jdx.dev/) to manage system dependencies. It is a convenient tool for managing system dependencies in isolated environments for different projects.
+All system dependencies versions are specified in the `.mise.toml` file. You can install them by running:
+
+```shell
+mise install
+```
+
+This will install all required system dependencies for the project. First time, you might also need to run `mise trust`.
+
+<Callout title="Tip" type="info">This tool is absolutely optional, and you can install all required tools manually if you prefer. Just consult the `.mise.toml` file for specific versions.</Callout>
+
+## Manage project
+
+We Babashka Tasks for managing the project. You can view the list of them by executing `bb tasks` in the terminal:
+
+```shell
+The following tasks are available:
+
+deps           Install all dev deps
+clj-repl       Run built-in Clojure REPL
+fmt-check      Check code formatting
+fmt            Fix code formatting
+lint-init      Linting project's classpath
+lint           Linting project's code
+outdated-check Check outdated Clojure deps versions
+outdated       Upgrade outdated Clojure deps versions
+test           Run tests
+check          Run all code checks and tests
+css-watch      Rebuild css on file change in watch mode
+css-build      Build minified css
+fetch-assets   Fetch static file assets from URLs
+build          Build application uberjar
+kamal          Deploy application using Kamal
+```
+
+To lint, format code, check all dependencies versions and run tests, you can use the `bb check` command, or run other commands individually.
+
+There are couple of commands to manage CSS files `css-watch` and `css-build`. We don't need to run them manually, because the watch-command already included in the system start at the `resources/config.dev.edn` file,
+and build-command is used in the Dockerfile for production build.
+
+There is extremely minimal build tool for static files `fetch-assets` that will download files from URLs and put them into the `resources/public` directory. The idea is
+vendor all static files in the project.
+To configure what files to download, you can edit the `bb.edn` file in the fetch-assets task definition:
+
+```clojure
+fetch-assets {:doc "Fetch static file assets from URLs"
+                :requires ([manifest-edn.core :as manifest])
+                :task (manifest/fetch-assets!
+                        // [!code highlight]
+                        [{:url "https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"
+                          // [!code highlight]
+                          :filepath "js/htmx.min.js"}
+                         {:url "https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"
+                          :filepath "js/alpinejs.min.js"}])}
+```
 
 ## Pre-commit git hooks
 
-## Code quality
+It's convenient to run code quality checks before committing or pushing code. The project intentianlly doesn't include it by default as everyone has their own preferences.
+However, you can easily add it by using an excellent tool [Lefthook](https://github.com/evilmartians/lefthook):
+
+1. Install Lefthook, by adding it to the `.mise.toml` file and running `mise install`:
+
+```toml title=".mise.toml"
+lefthook = "1.8.2"
+```
+
+2. Create a `.lefthook.yml` file in the root of the project with the following content:
+
+```yaml
+pre-commit:
+  parallel: true
+  commands:
+    fmt:
+      glob: "*.{clj,edn}"
+      run: bb fmt-check
+    lint:
+      glob: "*.{clj,edn}"
+      run: bb lint
+```
+
+3. Activate Lefthook by running:
+
+```shell
+lefthook install
+```
+
+before the next commit, Lefthook will run the `bb fmt-check` and `bb lint` commands for you if any clj or edn files have been changed.
+
+<Callout title="Tip" type="info">If you want, you can change `pre-commit` to `pre-push`, or add `bb test` and `bb outdate` commands to the config.</Callout>
