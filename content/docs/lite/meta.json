@@ -11,7 +11,12 @@
     "---Guide---",
     "generate-project",
     "local-development",
+    "app-system",
     "routing",
+    "database",
+    "frontend",
+    "testing",
+    "github-actions",
     "---Deployment---",
     "kamal"
   ]
