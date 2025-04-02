@@ -3,14 +3,13 @@ title: Kamal
 description: Deploy your Clojure application with Kamal
 ---
 
-We are using [Kamal](https://kamal-deploy.org/) for deployment. It's CLI tool that simplifies deployment with Docker
-on your own server.
+We use [Kamal](https://kamal-deploy.org/) for deployment. It's a CLI tool that simplifies deployment with Docker on your own server.
 
 ## Install Kamal locally
 
-Add `ruby = "3.3.0"` to your project's `.mise.toml` or to global `~/.mise.toml` file.
+Add `ruby = "3.3.0"` to your project's `.mise.toml` or to the global `~/.mise.toml` file.
 
-Install ruby and kamal:
+Install Ruby and Kamal:
 
 ```shell
 brew install libyaml  # or for Ubuntu: `sudo apt-get install libyaml-dev`
@@ -20,7 +19,7 @@ gem install kamal -v 2.5.3
 
 ## Deploy from local machine using Kamal
 
-Create `.env` file with appropriate variables for your project:
+Create a `.env` file with appropriate variables for your project:
 
 ```bash
 SERVER_IP=192.168.0.1
@@ -30,7 +29,7 @@ APP_DOMAIN=app.domain.com
 SESSION_SECRET_KEY=secret-key
 ```
 
-### First deploy to the fresh server:
+### First deploy to a fresh server:
 
 ```shell
 bb kamal setup
@@ -44,7 +43,7 @@ If you already have a server with Kamal installed, you can skip this step.
 bb kamal deploy
 ```
 
-## Deploy from Github Actions
+## Deploy from GitHub Actions
 
 Setup secrets for Actions:
 
@@ -57,7 +56,7 @@ SESSION_SECRET_KEY=secret-key
 
 ### Notes
 
-- `SSH_PRIVATE_KEY` - a new SSH private key **without password** that you created and added public part of it to the server's `~/.ssh/authorized_keys` to authorize from CI-worker.
+- `SSH_PRIVATE_KEY` - a new SSH private key **without password** that you created and added the public part to the server's `~/.ssh/authorized_keys` to authorize from the CI worker.
 
 To generate SSH keys, run:
 
