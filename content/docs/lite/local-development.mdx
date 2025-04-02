@@ -3,4 +3,39 @@ title: Local Development
 description: Setup your local development environment
 ---
 
-Content
+## Editor setup
+
+### IntelliJ IDEA with Cursive
+
+Open project in IntelliJ IDEA with Cursive plugin. It will automatically detect the project structure and dependencies.
+Also it will configure the run configuration for REPL. We will need just slightly update it with additional aliases for `dev` and `test`:
+
+1. At the top right corner open `REPL for myproject` -> `Edit Configurations...`
+
+![Clojure Stack Lite starter page](@/public/lite_idea_run_config.png)
+
+2. Add optoins `-A:user:dev:test` and press `OK`:
+
+![Clojure Stack Lite starter page](@/public/lite_idea_aliases.png)
+
+3. Now you can run the REPL, execute `(reset)` in it and start coding.
+
+![Clojure Stack Lite starter page](@/public/lite_idea_run_repl.png)
+
+<Callout title="Tip" type="info">
+    It is convenient to configure the REPL command and bind it to a keyboard shortcut. So you can quickly run `(reset)` by keypress.
+</Callout>
+
+![Clojure Stack Lite starter page](@/public/lite_idea_repl_cmd.png)
+
+### VSCode with Calva
+
+## REPL
+
+## mise
+
+## CSS auto-reload
+
+## Pre-commit git hooks
+
+## Code quality
