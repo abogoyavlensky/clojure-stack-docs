@@ -8,4 +8,59 @@ on your own server.
 
 ## Install Kamal locally
 
+Add `ruby = "3.3.0"` to your project's `.mise.toml` or to global `~/.mise.toml` file.
 
+Install ruby and kamal:
+
+```shell
+brew install libyaml  # or for Ubuntu: `sudo apt-get install libyaml-dev`
+mise install ruby
+gem install kamal -v 2.5.3
+```
+
+## Deploy from local machine using Kamal
+
+Create `.env` file with appropriate variables for your project:
+
+```bash
+SERVER_IP=192.168.0.1
+REGISTRY_USERNAME=your-github-username
+REGISTRY_PASSWORD=personal-github-token
+APP_DOMAIN=app.domain.com
+SESSION_SECRET_KEY=secret-key
+```
+
+### First deploy to the fresh server:
+
+```shell
+bb kamal setup
+```
+
+If you already have a server with Kamal installed, you can skip this step.
+
+### Regular deployment
+
+```shell
+bb kamal deploy
+```
+
+## Deploy from Github Actions
+
+Setup secrets for Actions:
+
+```shell
+SERVER_IP=192.168.0.1
+APP_DOMAIN=app.domain.com
+SSH_PRIVATE_KEY=secret-ssh-key
+SESSION_SECRET_KEY=secret-key
+```
+
+### Notes
+
+- `SSH_PRIVATE_KEY` - a new SSH private key **without password** that you created and added public part of it to the server's `~/.ssh/authorized_keys` to authorize from CI-worker.
+
+To generate SSH keys, run:
+
+```shell
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
