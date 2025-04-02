@@ -5,13 +5,10 @@ description: Backend routing
 
 ## Routing
 
-For routing we use Reitit with Ring and Malli for validation. You consult [Reitit documentation](https://cljdoc.org/d/metosin/reitit/0.8.0/doc/basics/route-syntax) for more details.
-
+For routing, we use Reitit with Ring and Malli for validation. You can consult the [Reitit documentation](https://cljdoc.org/d/metosin/reitit/0.8.0/doc/basics/route-syntax) for more details.
 
 ## Middlewares
 
-The project includes a few middlewares for security and convenience, they are defined in the [`reitit-extras`](https://github.com/abogoyavlensky/reitit-extras/blob/3d3152a0d332a7dce973f91c65f4f6471b8953c5/src/reitit_extras/core.clj#L173-L203) helper library.
+The project includes several middlewares for security and convenience. These are defined in the [`reitit-extras`](https://github.com/abogoyavlensky/reitit-extras/blob/3d3152a0d332a7dce973f91c65f4f6471b8953c5/src/reitit_extras/core.clj#L173-L203) helper library.
 
-You can also extend list of defaults middlewares with your own by passing `:middlewares` to the first argument of `reitit-extras/get-handler-ssr` at `src/myproject/server.cj` file.
-
-
+You can extend the list of default middlewares with your own by passing `:middlewares` to the first argument of `reitit-extras/get-handler-ssr` in the `src/myproject/server.clj` file.
