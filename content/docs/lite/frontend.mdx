@@ -3,3 +3,65 @@ title: Frontend
 description: UI development
 ---
 
+## POST requests
+
+## Assets management
+
+## Tailwind CSS setup
+
+For CSS styling we use [Tailwind CSS](https://tailwindcss.com/docs/installation). We use simplest way to install it, using CLI tool
+
+```shell
+mise install tailwindcss
+```
+Minimal configuration is in `resources/public/css/input.css` file. You can add your own configuration there.
+
+```css title="resources/public/css/input.css"
+@import 'tailwindcss' source("../../../src");
+```
+
+It detects all changes in the `src` folder and rebuilds CSS file.
+
+There are two commands to run tailwindcss:
+
+1. `bb css-watch` - watch for changes in CSS files and recompile them. It is used for development.
+2. `bb css-build` - build CSS file once, it is used for production.
+
+By default, application system uses `bb css-watch` command to compile CSS files. You can add/change any CSS class in Hiccup in any file of the project
+and after refreshing the page you will see changes in the browser.
+
+
+The command `bb css-watch` starts automiatically **only** in development mode:
+
+```clojure title="resources/config.dev.edn"
+#merge [#include "config.edn"
+        {:integrant-extras.process/process {:cmd ["bb" "css-watch"]
+                                            :opts {:err :inherit}}}]
+```
+
+It starts `bb css-watch` command in the background and you can see the output in the terminal only about first run.
+If you want to see all output of the command  about each rebuild, you can add `:opts {:err :inherit}` to the process config:
+
+```clojure title="resources/config.dev.edn"
+#merge [#include "config.edn"
+        {:integrant-extras.process/process {:cmd ["bb" "css-watch"]
+                                            // [!code highlight]
+                                            :opts {:err :inherit}}}]
+```
+
+
+If you don't want to start `bb css-watch` command automatically with the dev system you remove config file parameter from `read-config` function:
+
+```clojure title="dev/user.clj"
+;...
+(defn reset
+  "Restart system."
+  []
+  (ig-repl/set-prep! #(ig-extras/read-config :dev))
+  (ig-repl/reset))
+;...
+```
+
+And the run on you own `bb css-watch` command in the terminal.
+
+## PWA support
