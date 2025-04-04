@@ -6,8 +6,8 @@ description: UI development
 ## POST requests
 
 Server includes `wrap-anti-forgery` middleware by default. It is used to protect your application from CSRF attacks.
-It means that all POST requests should include CSRF-token in the request body.
-There are two ways to include CSRF-token in the request body.
+This means all POST requests should include a CSRF-token in the request body.
+There are two ways to include a CSRF-token:
 
 1. Hidden input field in the form:
 
@@ -38,30 +38,30 @@ There are two ways to include CSRF-token in the request body.
 
 ## Tailwind CSS setup
 
-For CSS styling we use [Tailwind CSS](https://tailwindcss.com/docs/installation). We use simplest way to install it, using CLI tool
+For CSS styling, we use [Tailwind CSS](https://tailwindcss.com/docs/installation). We use the simplest installation method via the CLI tool:
 
 ```shell
 mise install tailwindcss
 ```
-Minimal configuration is in `resources/public/css/input.css` file. You can add your own configuration there.
+
+Minimal configuration is in the `resources/public/css/input.css` file where you can add your own configuration:
 
 ```css title="resources/public/css/input.css"
 @import 'tailwindcss' source("../../../src");
 ```
 
-It detects all changes in the `src` folder and rebuilds CSS file.
+This detects all changes in the `src` folder and rebuilds the CSS file.
 
-There are two commands to run tailwindcss:
+There are two commands to run Tailwind CSS:
 
-1. `bb css-watch` - watch for changes in CSS files and recompile them. It is used for development.
-2. `bb css-build` - build CSS file once, it is used for production.
+1. `bb css-watch` - watches for changes in CSS files and recompiles them. Used for development.
+2. `bb css-build` - builds CSS files once. Used for production.
 
-By default, application system uses `bb css-watch` command to compile CSS files.
-Both commands create `resources/public/css/output.css` file with compiled CSS.
-You can add/change any CSS class in Hiccup in any file of the project
-and after refreshing the page you will see changes in the browser.
+By default, the application system uses `bb css-watch` to compile CSS files.
+Both commands create a `resources/public/css/output.css` file with compiled CSS.
+You can add or change any CSS class in Hiccup in any project file, and after refreshing the page, you'll see the changes in the browser.
 
-The command `bb css-watch` starts automatically **only** in development mode:
+The `bb css-watch` command starts automatically **only** in development mode:
 
 ```clojure title="resources/config.dev.edn"
 #merge [#include "config.edn"
@@ -69,8 +69,8 @@ The command `bb css-watch` starts automatically **only** in development mode:
                                             :opts {:err :inherit}}}]
 ```
 
-It runs `bb css-watch` command in the background and you can see the output in the terminal only about first run.
-If you want to see all output of the command  about each rebuild, you can add `:opts {:err :inherit}` to the process config:
+It runs the `bb css-watch` command in the background. By default, you'll only see output about the first run.
+If you want to see complete output about each rebuild, you can add `:opts {:err :inherit}` to the process config:
 
 ```clojure title="resources/config.dev.edn"
 #merge [#include "config.edn"
@@ -79,8 +79,7 @@ If you want to see all output of the command  about each rebuild, you can add `:
                                             :opts {:err :inherit}}}]
 ```
 
-
-If you don't want to start `bb css-watch` command automatically with the dev system you can remove dev config file parameter from `read-config` function:
+If you don't want to start the `bb css-watch` command automatically with the dev system, you can remove the dev config file parameter from the `read-config` function:
 
 ```clojure title="dev/user.clj"
 ;...
@@ -92,16 +91,16 @@ If you don't want to start `bb css-watch` command automatically with the dev sys
 ;...
 ```
 
-And the run on you own `bb css-watch` command in the terminal.
+Then run `bb css-watch` in the terminal yourself.
 
 ## Static assets management
 
-Template has extremely lightweight static assets management approach. The idea is: vendoring all assets in the `resources/public` folder except output CSS file.
+The template has an extremely lightweight static assets management approach. The idea is to vendor all assets in the `resources/public` folder except the output CSS file.
 
 ### Fetching assets
 
-By default there are two js libraries included in the template: `resources/public/alpine.min.js` and `resources/public/htmx.min.js`.
-Their versions are specified in `bb.edn` file at `fetch-assets` command:
+By default, two JS libraries are included in the template: `resources/public/alpine.min.js` and `resources/public/htmx.min.js`.
+Their versions are specified in the `bb.edn` file under the `fetch-assets` command:
 
 ```clojure
 {:tasks
@@ -117,8 +116,8 @@ Their versions are specified in `bb.edn` file at `fetch-assets` command:
                           :filepath "js/alpinejs.min.js"}])}
 ```
 
-The small library [`manifest-edn`](https://github.com/abogoyavlensky/manifest-edn) is used to fetch assets from URLs and save them in the `resources/public` folder by `:filepath`.
-You can add your own assets to the `resources/public` folder and use them in your project. For example let's add [`response-targets`]() extension to HTMX:
+The small library [`manifest-edn`](https://github.com/abogoyavlensky/manifest-edn) is used to fetch assets from URLs and save them in the `resources/public` folder according to the `:filepath`.
+You can add your own assets to the `resources/public` folder. For example, let's add the [`response-targets`]() extension to HTMX:
 
 ```clojure
 {:tasks
@@ -132,11 +131,11 @@ You can add your own assets to the `resources/public` folder and use them in you
                           :filepath "js/htmx-ext-response-targets.min.js"}])}
 ```
 
-After running `bb fetch-assets` new js file `resources/public/js/htmx-ext-response-targets.min.js` will be added.
+After running `bb fetch-assets`, a new JS file `resources/public/js/htmx-ext-response-targets.min.js` will be added.
 
 ### Use assets in HTML
 
-To use any asset in our HTML we have to wrap it with `asset` function:
+To use any asset in our HTML, wrap it with the `asset` function:
 
 ```clojure title="src/myproject/views.clj"
 (ns myproject.views
@@ -171,15 +170,15 @@ To use any asset in our HTML we have to wrap it with `asset` function:
               :defer true}]]])
 ```
 
-The same valid for all assets from `resources/public` folder, for example the image `images/icon.svg` we also wrapped with `asset` function.
-In development this function will add prefix `/assets` to the path of the asset, so it will be available in the browser at `http://localhost:3000/assets/images/icon.svg`.
-In production before building jar-file we run `(manifest/hash-assets!)` that will hash all assets from public directly and add `manifest.edn` with all assets and their hashes.
-The function `manifest/asset` will use this hash to generate the path to the asset.
+This applies to all assets from the `resources/public` folder. For example, the image `images/icon.svg` is also wrapped with the `asset` function.
+In development, this function adds the prefix `/assets` to the path, making it available at `http://localhost:3000/assets/images/icon.svg`.
+In production, before building the jar file, `(manifest/hash-assets!)` runs to hash all assets from the public directory and add a `manifest.edn` file with all assets and their hashes.
+The `manifest/asset` function uses this hash to generate the path to the asset.
 
 ## PWA support
 
-The template has basic Progressive Web Application (PWA) support. It includes and a manifest file, but doesn't include service worker. You can add your own service worker to the project if you need it.
-The manifest file is located in `resources/public/manifest.json` and it is used to define the PWA properties.
-By default there are optimized set of icons for the PWA, according to the an awesome [favicon guide](https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs).
+The template has basic Progressive Web Application (PWA) support. It includes a manifest file but doesn't include a service worker. You can add your own service worker if needed.
+The manifest file is located at `resources/public/manifest.json` and defines the PWA properties.
+By default, there's an optimized set of icons for the PWA, following the recommendations from this excellent [favicon guide](https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs).
 
-Before going to production you need to change name, url and id of the app in the manifest file. Also, you will most likely need to change icons to your own at `resources/public/images`.
+Before going to production, change the name, URL, and ID of the app in the manifest file. You'll also likely want to replace the icons in `resources/public/images` with your own.
