@@ -5,9 +5,9 @@ description: UI development
 
 ## POST requests
 
-Server includes `wrap-anti-forgery` middleware by default. It is used to protect your application from CSRF attacks.
-This means all POST requests should include a CSRF-token in the request body.
-There are two ways to include a CSRF-token:
+The server includes `wrap-anti-forgery` middleware by default to protect your application from CSRF attacks.
+This security measure requires all POST requests to include a CSRF token in the request body.
+You can include a CSRF token in two ways:
 
 1. Hidden input field in the form:
 
@@ -38,28 +38,28 @@ There are two ways to include a CSRF-token:
 
 ## Tailwind CSS setup
 
-For CSS styling, we use [Tailwind CSS](https://tailwindcss.com/docs/installation). We use the simplest installation method via the CLI tool:
+For CSS styling, Clojure Stack Lite uses [Tailwind CSS](https://tailwindcss.com/docs/installation) with the simplest installation method via the CLI tool:
 
 ```shell
 mise install tailwindcss
 ```
 
-Minimal configuration is in the `resources/public/css/input.css` file where you can add your own configuration:
+The minimal configuration is in the `resources/public/css/input.css` file where you can add your own customizations:
 
 ```css title="resources/public/css/input.css"
 @import 'tailwindcss' source("../../../src");
 ```
 
-This detects all changes in the `src` folder and rebuilds the CSS file.
+This configuration detects all changes in the `src` folder and automatically rebuilds the CSS file.
 
-There are two commands to run Tailwind CSS:
+There are two commands available for working with Tailwind CSS:
 
-1. `bb css-watch` - watches for changes in CSS files and recompiles them. Used for development.
-2. `bb css-build` - builds CSS files once. Used for production.
+1. `bb css-watch` - watches for changes in CSS files and recompiles them in real-time (for development)
+2. `bb css-build` - builds CSS files once (for production)
 
 By default, the application system uses `bb css-watch` to compile CSS files.
-Both commands create a `resources/public/css/output.css` file with compiled CSS.
-You can add or change any CSS class in Hiccup in any project file, and after refreshing the page, you'll see the changes in the browser.
+Both commands generate a `resources/public/css/output.css` file with compiled CSS.
+You can add or modify any CSS class in Hiccup in any project file, and after refreshing the page, you'll immediately see the changes in the browser.
 
 The `bb css-watch` command starts automatically **only** in development mode:
 
@@ -69,8 +69,8 @@ The `bb css-watch` command starts automatically **only** in development mode:
                                             :opts {:err :inherit}}}]
 ```
 
-It runs the `bb css-watch` command in the background. By default, you'll only see output about the first run.
-If you want to see complete output about each rebuild, you can add `:opts {:err :inherit}` to the process config:
+This runs the `bb css-watch` command in the background. By default, you'll only see output about the first run.
+If you want to see complete output for each rebuild, you can add `:opts {:err :inherit}` to the process config:
 
 ```clojure title="resources/config.dev.edn"
 #merge [#include "config.edn"
@@ -79,7 +79,7 @@ If you want to see complete output about each rebuild, you can add `:opts {:err 
                                             :opts {:err :inherit}}}]
 ```
 
-If you don't want to start the `bb css-watch` command automatically with the dev system, you can remove the dev config file parameter from the `read-config` function:
+If you prefer not to start the `bb css-watch` command automatically with the dev system, you can remove the dev config file parameter from the `read-config` function:
 
 ```clojure title="dev/user.clj"
 ;...
@@ -91,15 +91,15 @@ If you don't want to start the `bb css-watch` command automatically with the dev
 ;...
 ```
 
-Then run `bb css-watch` in the terminal yourself.
+Then you can run `bb css-watch` manually in your terminal.
 
 ## Static assets management
 
-The template has an extremely lightweight static assets management approach. The idea is to vendor all assets in the `resources/public` folder except the output CSS file.
+The template implements a lightweight static assets management approach. The core concept is to vendor all assets in the `resources/public` folder except the output CSS file.
 
 ### Fetching assets
 
-By default, two JS libraries are included in the template: `resources/public/alpine.min.js` and `resources/public/htmx.min.js`.
+By default, two JavaScript libraries are included in the template: `resources/public/alpine.min.js` and `resources/public/htmx.min.js`.
 Their versions are specified in the `bb.edn` file under the `fetch-assets` command:
 
 ```clojure
@@ -116,8 +116,8 @@ Their versions are specified in the `bb.edn` file under the `fetch-assets` comma
                           :filepath "js/alpinejs.min.js"}])}
 ```
 
-The small library [`manifest-edn`](https://github.com/abogoyavlensky/manifest-edn) is used to fetch assets from URLs and save them in the `resources/public` folder according to the `:filepath`.
-You can add your own assets to the `resources/public` folder. For example, let's add the [`response-targets`]() extension to HTMX:
+The lightweight [`manifest-edn`](https://github.com/abogoyavlensky/manifest-edn) library is used to fetch assets from URLs and save them in the `resources/public` folder according to the specified `:filepath`.
+You can easily add your own assets to the `resources/public` folder. For example, to add the [`response-targets`]() extension for HTMX:
 
 ```clojure
 {:tasks
@@ -131,11 +131,11 @@ You can add your own assets to the `resources/public` folder. For example, let's
                           :filepath "js/htmx-ext-response-targets.min.js"}])}
 ```
 
-After running `bb fetch-assets`, a new JS file `resources/public/js/htmx-ext-response-targets.min.js` will be added.
+After running `bb fetch-assets`, a new JS file `resources/public/js/htmx-ext-response-targets.min.js` will be added to your project.
 
 ### Use assets in HTML
 
-To use any asset in our HTML, wrap it with the `asset` function:
+To use any asset in your HTML, simply wrap it with the `asset` function:
 
 ```clojure title="src/myproject/views.clj"
 (ns myproject.views
@@ -170,15 +170,16 @@ To use any asset in our HTML, wrap it with the `asset` function:
               :defer true}]]])
 ```
 
-This applies to all assets from the `resources/public` folder. For example, the image `images/icon.svg` is also wrapped with the `asset` function.
+This approach applies to all assets in the `resources/public` folder. For example, the image `images/icon.svg` is also wrapped with the `asset` function.
 In development, this function adds the prefix `/assets` to the path, making it available at `http://localhost:3000/assets/images/icon.svg`.
 In production, before building the jar file, `(manifest/hash-assets!)` runs to hash all assets from the public directory and add a `manifest.edn` file with all assets and their hashes.
-The `manifest/asset` function uses this hash to generate the path to the asset.
+The `manifest/asset` function uses this hash to generate the path to the asset, enabling efficient caching and versioning.
 
 ## PWA support
 
-The template has basic Progressive Web Application (PWA) support. It includes a manifest file but doesn't include a service worker. You can add your own service worker if needed.
+The template includes basic Progressive Web Application (PWA) support. It provides a manifest file but does not include a service worker by default. You can add your own service worker if needed for your application requirements.
+
 The manifest file is located at `resources/public/manifest.json` and defines the PWA properties.
 By default, there's an optimized set of icons for the PWA, following the recommendations from this excellent [favicon guide](https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs).
 
-Before going to production, change the name, URL, and ID of the app in the manifest file. You'll also likely want to replace the icons in `resources/public/images` with your own.
+Before deploying to production, remember to update the name, URL, and ID of the app in the manifest file. You'll also likely want to replace the default icons in `resources/public/images` with your own branded assets.
