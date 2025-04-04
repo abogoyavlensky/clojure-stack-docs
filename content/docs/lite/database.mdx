@@ -3,27 +3,27 @@ title: Database
 description: Working with Database
 ---
 
-<Callout title="Info" type="info">At the moment only SQLite database is available to choose from when creating a new project. PostgreSQL and Datalevin databases are planned to add later.</Callout>
+<Callout title="Info" type="info">At the moment only SQLite database is available when creating a new project. PostgreSQL and Datalevin databases will be added in future updates.</Callout>
 
-## Database interaction
+## Database Interaction
 
-For database connection we use `hikari-cp/hikari-cp` library. It is a fast and simple connection pool.
-We also use `com.github.seancorfield/next.jdbc` library to interact with the database.
-To build SQL queries we use `com.github.seancorfield/honeysql`. It's very effective and convenient way to build SQL queries in Clojure.
+For database connections, we use the `hikari-cp/hikari-cp` library, which provides a fast and efficient connection pool.
+We leverage `com.github.seancorfield/next.jdbc` for database interactions and `com.github.seancorfield/honeysql` for building SQL queries. HoneySQL offers a particularly elegant and Clojure-idiomatic way to construct SQL queries.
 
-Database components are defined in the `src/myproject/db.clj` file.
+All database components are defined in the `src/myproject/db.clj` file.
 
-There are two main functions to interact with the database:
+The project provides two primary functions for database operations:
 
-- `exec!` - executes a SQL query and returns the vector with result rows.
-- `exec-one!` - executes a SQL query and returns a map with first result.
+- `exec!` - Executes a SQL query and returns a vector containing all result rows.
+- `exec-one!` - Executes a SQL query and returns a map with the first result only.
 
-Both functions takes database component as a first argument and SQL query as a second argument. Also, they pre-configured to return result maps with unqualified keys in lower kebab case.
+Both functions take the database component as their first argument and the SQL query as the second argument. They are pre-configured to return result maps with unqualified keys in lower kebab case for consistent data handling.
 
 
 ## Migrations
 
-For database schema migrations we use `dev.weavejester/ragtime` library. It is a simple and effective way to manage database schema migrations in Clojure.
-Migrations are ran at system startup as part of database component initialization. The migration files are stored in the `resources/migrations` directory.
-The migration files are named with a number, for example `0001.up.sql`. When you want to add new migration, just create a new file with the next number in the sequence.
-The migration files are executed in the order of their numbers.
+For database schema migrations, we use the `dev.weavejester/ragtime` library, which provides a simple and effective approach to managing database schema changes in Clojure.
+
+Migrations run automatically at system startup as part of the database component initialization process. All migration files are stored in the `resources/migrations` directory.
+
+Migration files follow a numbered naming convention, such as `0001.up.sql`. When you need to add a new migration, simply create a new file with the next sequential number. The system executes migration files in numerical order, ensuring a consistent and predictable database evolution.
