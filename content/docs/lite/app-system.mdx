@@ -3,3 +3,39 @@ title: App System
 description: Application System configuration
 ---
 
+The application is based on [Integrant](https://github.com/weavejester/integrant micro-framework to manage the system state and dependencies.
+
+## Configuration
+
+The system is defined in the `resources/config.edn` file. We exteneded the default configuration with the [Aero](https://github.com/juxt/aero) library
+that adds some useful reader tags to extend EDN configuration. By default our system config supports 3 profiles: `:test`, :dev` and `:prod`.
+You can extend them as you prefer.
+
+## Development
+
+Main entry point for the application for development is the `dev/users.clj`. There are some useful functions defined there to manage application in the REPL.
+Main function is `reset`:
+
+```
+(defn reset
+  "Restart system."
+  []
+  (ig-repl/set-prep! #(ig-extras/read-config :dev "config.dev.edn"))
+  (ig-repl/reset))
+```
+
+It reads the system config and runs the system. We extend default `config.edn` with `config.dev.edn` file that one extra component to start Tailwind CSS watcher as part of the app system.
+
+## Production
+
+In production the main entry point is `src/myproject/core.clj`. It has `-main` function that runs system using [`integrant-extras.core/run-system`](https://github.com/abogoyavlensky/integrant-extras/blob/d075a98504199fb4c7830b1085b915d17109fdc3/src/integrant_extras/core.clj#L68-L75).
+This main function is used when running the application with jar-file.
+
+[`Slim`](https://github.com/abogoyavlensky/slim) library is used to build the jar-file. It is a wrapper around `tools.build` library that simplifies the process of building jar-files.
+The config is defined in the `deps.edn` file at `:build` alias. You can run the build with the following command:
+
+```bash
+bb build
+```
+
+It will compile output CSS file, hash static assets and creates `manifest.edn` in the new dir `resources-hashed` and build the jar-file.
