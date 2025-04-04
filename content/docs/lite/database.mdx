@@ -27,3 +27,11 @@ For database schema migrations, we use the `dev.weavejester/ragtime` library, wh
 Migrations run automatically at system startup as part of the database component initialization process. All migration files are stored in the `resources/migrations` directory.
 
 Migration files follow a numbered naming convention, such as `0001.up.sql`. When you need to add a new migration, simply create a new file with the next sequential number. The system executes migration files in numerical order, ensuring a consistent and predictable database evolution.
+
+
+## SQLite
+
+For improving SQLite performance in production there is a default migration that sets the `PRAGMA journal_mode` to `WAL` (Write-Ahead Logging) and `PRAGMA synchronous` to `NORMAL`.
+This configuration enhances performance by allowing concurrent reads and writes, while still maintaining a reasonable level of durability.
+
+More info read at: [https://til.simonwillison.net/sqlite/enabling-wal-mode](https://til.simonwillison.net/sqlite/enabling-wal-mode)
