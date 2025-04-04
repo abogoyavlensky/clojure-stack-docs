@@ -3,3 +3,27 @@ title: Database
 description: Working with Database
 ---
 
+<Callout title="Info" type="info">At the moment only SQLite database is available to choose from when creating a new project. PostgreSQL and Datalevin databases are planned to add later.</Callout>
+
+## Database interaction
+
+For database connection we use `hikari-cp/hikari-cp` library. It is a fast and simple connection pool.
+We also use `com.github.seancorfield/next.jdbc` library to interact with the database.
+To build SQL queries we use `com.github.seancorfield/honeysql`. It's very effective and convenient way to build SQL queries in Clojure.
+
+Database components are defined in the `src/myproject/db.clj` file.
+
+There are two main functions to interact with the database:
+
+- `exec!` - executes a SQL query and returns the vector with result rows.
+- `exec-one!` - executes a SQL query and returns a map with first result.
+
+Both functions takes database component as a first argument and SQL query as a second argument. Also, they pre-configured to return result maps with unqualified keys in lower kebab case.
+
+
+## Migrations
+
+For database schema migrations we use `dev.weavejester/ragtime` library. It is a simple and effective way to manage database schema migrations in Clojure.
+Migrations are ran at system startup as part of database component initialization. The migration files are stored in the `resources/migrations` directory.
+The migration files are named with a number, for example `0001.up.sql`. When you want to add new migration, just create a new file with the next number in the sequence.
+The migration files are executed in the order of their numbers.

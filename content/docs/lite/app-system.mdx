@@ -8,6 +8,9 @@ The application is based on the [Integrant](https://github.com/weavejester/integ
 ## Configuration
 
 The system is defined in the `resources/config.edn` file. We've extended the default configuration with the [Aero](https://github.com/juxt/aero) library, which adds useful reader tags to enhance EDN configuration. By default, our system config supports three profiles: `:test`, `:dev`, and `:prod`. You can extend these profiles according to your requirements.
+As a shortcut for the config extension we use small helper library [`integrant-extras`](https://github.com/abogoyavlensky/integrant-extras) which provides a set of useful functions to read and manage the system configuration.
+
+Each component pre-defined in the system comes with Malli schema for its arguments.
 
 ## Development
 
@@ -34,3 +37,7 @@ bb build
 ```
 
 This command will compile the output CSS file, hash static assets, create a `manifest.edn` file in the new `resources-hashed` directory, and build the JAR file.
+
+## Logging
+
+For logging we use combination of standard `org.clojure/tools.logging` and `ch.qos.logback/logback-classic`. You can find logging config at `resources/logback.xml`.

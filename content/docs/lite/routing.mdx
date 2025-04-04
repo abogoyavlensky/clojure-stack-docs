@@ -7,6 +7,9 @@ description: Backend routing
 
 This project implements routing using Reitit with Ring, and Malli for request validation. Reitit provides a powerful and flexible routing system for Clojure web applications. For comprehensive information about route syntax and capabilities, consult the [Reitit documentation](https://cljdoc.org/d/metosin/reitit/0.8.0/doc/basics/route-syntax).
 
+The main file for server component is `src/myproject/server.clj`. It contains the main function that starts the server and initializes the routing system. The routing system is defined in the `routes` variable, which is a vector of routes.
+Routes live in the `src/myproject/routes.clj` file for convenience.
+
 ## Middlewares
 
 The project comes pre-configured with several middlewares that enhance security and provide convenient functionality. These middlewares are defined in the [`reitit-extras`](https://github.com/abogoyavlensky/reitit-extras/blob/3d3152a0d332a7dce973f91c65f4f6471b8953c5/src/reitit_extras/core.clj#L173-L203) helper library.
