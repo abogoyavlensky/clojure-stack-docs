@@ -5,7 +5,36 @@ description: UI development
 
 ## POST requests
 
-## Assets management
+Server includes `wrap-anti-forgery` middleware by default. It is used to protect your application from CSRF attacks.
+It means that all POST requests should include CSRF-token in the request body.
+There are two ways to include CSRF-token in the request body.
+
+1. Hidden input field in the form:
+
+```clojure title="src/myproject/views.clj"
+(ns myproject.views
+  (:require ;...
+            // [!code highlight]
+            [reitit-extras.core :as reitit-extras]))
+
+[:form
+  // [!code highlight]
+  (reitit-extras/csrf-token-html)
+  ;...
+  ]
+```
+
+2. Header in the request:
+
+```clojure title="src/myproject/views.clj"
+; ...
+[:button
+ {:hx-delete "/api/delete"
+  // [!code highlight]
+  :hx-headers (reitit-extras/csrf-token-json)}
+ "Delete"]
+```
+
 
 ## Tailwind CSS setup
 
@@ -27,11 +56,12 @@ There are two commands to run tailwindcss:
 1. `bb css-watch` - watch for changes in CSS files and recompile them. It is used for development.
 2. `bb css-build` - build CSS file once, it is used for production.
 
-By default, application system uses `bb css-watch` command to compile CSS files. You can add/change any CSS class in Hiccup in any file of the project
+By default, application system uses `bb css-watch` command to compile CSS files.
+Both commands create `resources/public/css/output.css` file with compiled CSS.
+You can add/change any CSS class in Hiccup in any file of the project
 and after refreshing the page you will see changes in the browser.
 
-
-The command `bb css-watch` starts automiatically **only** in development mode:
+The command `bb css-watch` starts automatically **only** in development mode:
 
 ```clojure title="resources/config.dev.edn"
 #merge [#include "config.edn"
@@ -39,7 +69,7 @@ The command `bb css-watch` starts automiatically **only** in development mode:
                                             :opts {:err :inherit}}}]
 ```
 
-It starts `bb css-watch` command in the background and you can see the output in the terminal only about first run.
+It runs `bb css-watch` command in the background and you can see the output in the terminal only about first run.
 If you want to see all output of the command  about each rebuild, you can add `:opts {:err :inherit}` to the process config:
 
 ```clojure title="resources/config.dev.edn"
@@ -50,7 +80,7 @@ If you want to see all output of the command  about each rebuild, you can add `:
 ```
 
 
-If you don't want to start `bb css-watch` command automatically with the dev system you remove config file parameter from `read-config` function:
+If you don't want to start `bb css-watch` command automatically with the dev system you can remove dev config file parameter from `read-config` function:
 
 ```clojure title="dev/user.clj"
 ;...
@@ -64,4 +94,92 @@ If you don't want to start `bb css-watch` command automatically with the dev sys
 
 And the run on you own `bb css-watch` command in the terminal.
 
+## Static assets management
+
+Template has extremely lightweight static assets management approach. The idea is: vendoring all assets in the `resources/public` folder except output CSS file.
+
+### Fetching assets
+
+By default there are two js libraries included in the template: `resources/public/alpine.min.js` and `resources/public/htmx.min.js`.
+Their versions are specified in `bb.edn` file at `fetch-assets` command:
+
+```clojure
+{:tasks
+ {;...
+  fetch-assets {:doc "Fetch static file assets from URLs"
+                :requires ([manifest-edn.core :as manifest])
+                :task (manifest/fetch-assets!
+                        // [!code highlight]
+                        [{:url "https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"
+                          :filepath "js/htmx.min.js"}
+                         // [!code highlight]
+                         {:url "https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"
+                          :filepath "js/alpinejs.min.js"}])}
+```
+
+The small library [`manifest-edn`](https://github.com/abogoyavlensky/manifest-edn) is used to fetch assets from URLs and save them in the `resources/public` folder by `:filepath`.
+You can add your own assets to the `resources/public` folder and use them in your project. For example let's add [`response-targets`]() extension to HTMX:
+
+```clojure
+{:tasks
+ {;...
+  fetch-assets {;...
+                :task (manifest/fetch-assets!
+                        // [!code highlight]
+                        [;...
+                         // [!code highlight]
+                         {:url "https://unpkg.com/htmx-ext-response-targets@2.0.2"
+                          :filepath "js/htmx-ext-response-targets.min.js"}])}
+```
+
+After running `bb fetch-assets` new js file `resources/public/js/htmx-ext-response-targets.min.js` will be added.
+
+### Use assets in HTML
+
+To use any asset in our HTML we have to wrap it with `asset` function:
+
+```clojure title="src/myproject/views.clj"
+(ns myproject.views
+  (:require ;...
+            [manifest-edn.core :as manifest]))
+
+(defn base
+  "Base component for html page."
+  [content]
+  [:html
+   [:head
+    [:link {:rel "icon"
+            // [!code highlight]
+            :href (manifest/asset "images/icon.svg")
+            :type "image/svg+xml"}]
+    [:link {:type "text/css"
+            :href (manifest/asset "css/output.css")
+            :rel "stylesheet"}]]
+   [:body
+    ;...
+    [:script {:type "text/javascript"
+              // [!code highlight]
+              :src (manifest/asset "js/htmx.min.js")
+              :defer true}]
+    [:script {:type "text/javascript"
+              // [!code highlight]
+              :src (manifest/asset "js/htmx-ext-response-targets.min.js")
+              :defer true}]
+    [:script {:type "text/javascript"
+              // [!code highlight]
+              :src (manifest/asset "js/alpinejs.min.js")
+              :defer true}]]])
+```
+
+The same valid for all assets from `resources/public` folder, for example the image `images/icon.svg` we also wrapped with `asset` function.
+In development this function will add prefix `/assets` to the path of the asset, so it will be available in the browser at `http://localhost:3000/assets/images/icon.svg`.
+In production before building jar-file we run `(manifest/hash-assets!)` that will hash all assets from public directly and add `manifest.edn` with all assets and their hashes.
+The function `manifest/asset` will use this hash to generate the path to the asset.
+
 ## PWA support
+
+The template has basic Progressive Web Application (PWA) support. It includes and a manifest file, but doesn't include service worker. You can add your own service worker to the project if you need it.
+The manifest file is located in `resources/public/manifest.json` and it is used to define the PWA properties.
+By default there are optimized set of icons for the PWA, according to the an awesome [favicon guide](https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs).
+
+Before going to production you need to change name, url and id of the app in the manifest file. Also, you will most likely need to change icons to your own at `resources/public/images`.
