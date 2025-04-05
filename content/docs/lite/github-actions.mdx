@@ -1,30 +1,38 @@
 ---
-title: Github Actions
-description: Continuous Integration and Continuous Deployment (CI/CD) with Github Actions
+title: GitHub Actions
+description: Continuous Integration and Continuous Deployment (CI/CD) with GitHub Actions
 ---
 
 ## Overview
 
-The CI/CD pipeline consists of three main workflows:
+The CI/CD pipeline consists of three main workflows that automate your development process from code changes to production deployment:
 
 1. **Code Quality Checks** - Validates code quality and runs tests
-2. **Custom Action** - Defines reusable workflow components for cashing Clojure dependencies
+2. **Custom Action** - Defines reusable workflow components for caching Clojure dependencies
 3. **Deployment** - Handles the deployment process to various environments
+
+Automating these processes ensures consistent quality, reduces manual errors, and speeds up your development cycle.
 
 ## Workflow Details
 
 ### Code Quality Checks (`.github/workflows/checks.yaml`)
 
 This workflow runs whenever code is pushed or a pull request is created, ensuring code quality standards are maintained.
-It triggers linting, formatting, testing and checking for stale dependencies.
+It triggers linting, formatting, testing and checking for stale dependencies. This helps catch issues early in the development process.
+
+### Custom Action (`.github/workflows/clojure-deps-action.yaml`)
+
+This reusable workflow component optimizes CI/CD performance by efficiently caching Clojure dependencies.
+It reduces build times by avoiding redundant downloads of the same dependencies across workflow runs.
 
 ### Deployment (`.github/workflows/deploy.yaml`)
 
 This workflow handles the deployment process to production.
-It builds the Docker image tagged by git commit sha, pushes it to the registry, and deploys it to the production environment.
+It builds the Docker image tagged by git commit SHA, pushes it to the registry, and deploys it to the production environment.
+The automated deployment process ensures consistent and reliable releases with minimal manual intervention.
 
 
 <Callout title="Tip" type="warn">
-To deployment to production you need to add required environment variables to `Actions secrets and variables` page of your project repository.
-More detials can be found in the [Deployment](/docs/lite/kamal#deploy-from-github-actions) section of the documentation.
+To deploy to production, you need to add required environment variables to the `Actions secrets and variables` page of your project repository.
+More details can be found in the [Deployment](/docs/lite/kamal#deploy-from-github-actions) section of the documentation.
 </Callout>
