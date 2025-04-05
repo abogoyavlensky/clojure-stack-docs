@@ -1,5 +1,24 @@
 ---
 title: Github Actions
-description: Configure Continuous Integration and Continuous Deployment (CI/CD) with Github Actions
+description: Continuous Integration and Continuous Deployment (CI/CD) with Github Actions
 ---
 
+## Overview
+
+The CI/CD pipeline consists of three main workflows:
+
+1. **Code Quality Checks** - Validates code quality and runs tests
+2. **Custom Action** - Defines reusable workflow components for cashing Clojure dependencies
+3. **Deployment** - Handles the deployment process to various environments
+
+## Workflow Details
+
+### Code Quality Checks (`checks.yaml`)
+
+This workflow runs whenever code is pushed or a pull request is created, ensuring code quality standards are maintained.
+It triggers linting, formatting, testing and checking for stale dependencies.
+
+### 3. Deployment (`deploy.yaml`)
+
+This workflow handles the deployment process to production.
+It builds the Docker image tagged by git commit sha, pushes it to the registry, and deploys it to the production environment.
