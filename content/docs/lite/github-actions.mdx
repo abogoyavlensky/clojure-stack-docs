@@ -13,12 +13,18 @@ The CI/CD pipeline consists of three main workflows:
 
 ## Workflow Details
 
-### Code Quality Checks (`checks.yaml`)
+### Code Quality Checks (`.github/workflows/checks.yaml`)
 
 This workflow runs whenever code is pushed or a pull request is created, ensuring code quality standards are maintained.
 It triggers linting, formatting, testing and checking for stale dependencies.
 
-### 3. Deployment (`deploy.yaml`)
+### Deployment (`.github/workflows/deploy.yaml`)
 
 This workflow handles the deployment process to production.
 It builds the Docker image tagged by git commit sha, pushes it to the registry, and deploys it to the production environment.
+
+
+<Callout title="Tip" type="warn">
+To deployment to production you need to add required environment variables to `Actions secrets and variables` page of your project repository.
+More detials can be found in the [Deployment](/docs/lite/kamal#deploy-from-github-actions) section of the documentation.
+</Callout>
