@@ -432,7 +432,6 @@ Typically, we would define parameter validation as part of the router using Mall
             [reitit-extras.core :as reitit-extras]
             [ring.util.response :as response]))
 
-; ...
 // [!code highlight]
 (defn validate-params!
   // [!code highlight]
@@ -551,11 +550,11 @@ After resetting the system in the REPL with `(reset)` and refreshing the page, w
    - Replaces the form with the response
    - Adds the new movie row to the table (if validation passed)
 
-This approach provides immediate feedback to users without page refreshes, creating a smooth, app-like experience while maintaining the simplicity of server-side rendering.
+This approach provides immediate feedback to users without page refreshes, creating a smooth experience while maintaining the simplicity of server-side rendering.
 
 ## Delete a Movie
 
-To delete a movie, let's add a query, handler, and route for it. The route will look like this:
+To delete a movie, let's add a query, handler, and route for it.
 
 ```clojure title="src/myproject/queries.clj"
 ;...
@@ -573,6 +572,8 @@ To delete a movie, let's add a query, handler, and route for it. The route will 
   (queries/delete-movie (:db context) {:id (get-in parameters [:path :id])})
   (response/response nil))
 ```
+
+The route we will add as a su-route for existing `/movies` route, and it will look like this:
 
 ```clojure title="src/myproject/routes.clj"
 ;...
@@ -636,7 +637,7 @@ Now we can add a delete button to each row of the table. We'll use the `:hx-dele
       (form {:router router})]]))
 ```
 
-Now, clicking on the delete button will remove the row from the table.
+After refreshing the system in REPL with `(reset)`, we can remove the row from the table by clicking on the delete button.
 
 ## Testing
 
