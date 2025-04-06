@@ -23,14 +23,14 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row justify-center mb-8 space-y-4 sm:space-y-0">
             <Link
               href="/docs/lite"
-              className="bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 sm:mr-2"
+              className="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-medium py-3 px-8 rounded-lg transition-colors duration-200 sm:mr-2"
             >
               Get Started
             </Link>
             <Link
               href="https://github.com/abogoyavlensky/clojure-stack-lite"
-              target='true'
-              className="bg-white hover:bg-slate-100 text-slate-900 font-medium py-3 px-8 rounded-lg border border-slate-300 transition-colors duration-200"
+              target="_blank"
+              className="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-medium py-3 px-8 rounded-lg border border-slate-300 dark:border-slate-600 transition-colors duration-200"
             >
               Source code
             </Link>
@@ -128,8 +128,8 @@ export default function HomePage() {
 
         </div>
       </main>
-      <footer className="text-center text-sm text-slate-500 sm:mt-20 pb-4">
-        <p> Made by with ❤️ for the Clojure community</p>
+      <footer className="text-center text-sm text-slate-500 dark:text-slate-400 sm:mt-20 pb-4">
+        <p> Made with ❤️ for the Clojure community</p>
       </footer>
     </div>
   );

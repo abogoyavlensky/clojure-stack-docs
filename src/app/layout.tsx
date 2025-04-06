@@ -7,28 +7,29 @@ import Script from 'next/script';
 import ogimage from '@/public/og-image.png';
 
 export const metadata: Metadata = {
-  title: 'Clojure Stack Templates',
-  description: 'Documentation for Clojure Stack Templates',
+  title: 'Clojure Stack Lite',
+  description: 'Documentation for Clojure Stack Lite',
   openGraph: {
-    title: 'Clojure Stack Templates',
-    description: 'Documentation for Clojure Stack Templates',
+    title: 'Clojure Stack Lite',
+    description: 'Documentation for Clojure Stack Lite',
     type: 'website',
     images: [
       {
         url: `https://stack.bogoyavlensky.com${ogimage.src}`,
         width: 1200,
         height: 630,
-        alt: 'Your documentation title',
+        alt: 'Documentation for Clojure Stack Lite',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Clojure Stack Templates',
-    description: 'Documentation for Clojure Stack Templates',
+    title: 'Clojure Stack Lite',
+    description: 'Documentation for Clojure Stack Lite',
   },
-  keywords: ['clojure', 'templates', 'stack', 'lite', 'clojure-stack-lite', 'htmx', 'sqlite', 'documentation'],
-  authors: [{ name: 'Clojure Stack Templates' }],
+  keywords: ['clojure', 'template', 'stack', 'lite', 'clojure-stack-lite', 'boilerplate',
+             'quickstart', 'htmx', 'sqlite', 'documentation', 'reitit', 'ring'],
+  authors: [{ name: 'Clojure Stack Lite' }],
   robots: 'index, follow',
 };
 
