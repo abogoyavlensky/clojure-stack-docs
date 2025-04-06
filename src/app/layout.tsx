@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { Metadata } from 'next';
 import Script from 'next/script';
+import ogimage from '@/public/og-image.png';
 
 export const metadata: Metadata = {
   title: 'Clojure Stack Templates',
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://stack.bogoyavlensky.com/_next/static/media/og-image.png',
+        url: ogimage.src,
         width: 1200,
         height: 630,
         alt: 'Your documentation title',
