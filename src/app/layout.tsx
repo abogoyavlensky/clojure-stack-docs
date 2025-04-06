@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/_next/static/media/og-image.png',
+        url: 'https://stack.bogoyavlensky.com/_next/static/media/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Your documentation title',
