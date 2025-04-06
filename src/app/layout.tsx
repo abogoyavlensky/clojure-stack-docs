@@ -12,6 +12,14 @@ export const metadata: Metadata = {
     title: 'Clojure Stack Templates',
     description: 'Documentation for Clojure Stack Templates',
     type: 'website',
+    images: [
+      {
+        url: '/_next/static/media/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Your documentation title',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
