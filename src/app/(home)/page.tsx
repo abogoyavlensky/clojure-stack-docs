@@ -25,6 +25,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="https://github.com/abogoyavlensky/clojure-stack-lite"
+              target='true'
               className="bg-white hover:bg-slate-100 text-slate-900 font-medium py-3 px-8 rounded-lg border border-slate-300 transition-colors duration-200"
             >
               Source code
@@ -127,8 +128,8 @@ export default function HomePage() {
 
         </div>
       </main>
-      <footer className="text-center text-sm text-slate-500 mt-32">
-        <p> Made with ❤️ for the Clojure community </p>
+      <footer className="text-center text-sm text-slate-500 sm:mt-20 pb-4">
+        <p> Made by with ❤️ for the Clojure community</p>
       </footer>
     </div>
   );
