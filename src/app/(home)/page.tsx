@@ -16,10 +16,14 @@ export default function HomePage() {
 
           <p className="text-md md:text-xl mb-8">A lightweight, modern template to jumpstart your Clojure projects</p>
 
-          <div className="flex justify-center mb-8">
+          <div className="mb-8 max-w-3xl mx-auto text-center">
+            <DynamicCodeBlock lang="shell" code={usageExampleCode} />
+          </div>
+
+          <div className="flex flex-col sm:flex-row justify-center mb-8 space-y-4 sm:space-y-0">
             <Link
               href="/docs/lite"
-              className="bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 mr-2"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 sm:mr-2"
             >
               Get Started
             </Link>
@@ -30,10 +34,6 @@ export default function HomePage() {
             >
               Source code
             </Link>
-          </div>
-
-          <div className="mb-8 max-w-3xl mx-auto text-center">
-            <DynamicCodeBlock lang="shell" code={usageExampleCode} />
           </div>
 
           <div className="flex flex-wrap justify-center gap-8 mb-8">
