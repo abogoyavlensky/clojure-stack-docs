@@ -9,6 +9,7 @@ The application is based on the [Integrant](https://github.com/weavejester/integ
 
 The system is defined in the `resources/config.edn` file. We've extended the default configuration with the [Aero](https://github.com/juxt/aero) library, which adds useful reader tags to enhance EDN configuration. By default, our system config supports three profiles: `:test`, `:dev`, and `:prod`. You can extend these profiles according to your requirements.
 As a shortcut for the config extension we use small helper library [`integrant-extras`](https://github.com/abogoyavlensky/integrant-extras) which provides a set of useful functions to read and manage the system configuration.
+But other than that, it's just **regular Integrant** configuration.
 
 By default there are two components in the system: `:myproject.db/db` and `:myproject.server/server`.
 The `db` component is responsible for managing the database connection pool, while the `server` component is responsible for starting the web server. You can add more components to the system as needed.
