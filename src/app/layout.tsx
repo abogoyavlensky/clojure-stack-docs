@@ -6,6 +6,8 @@ import { Metadata } from 'next';
 import Script from 'next/script';
 import ogimage from '@/public/og-image.png';
 
+const og = new URL(ogimage.src)
+
 export const metadata: Metadata = {
   title: 'Clojure Stack Templates',
   description: 'Documentation for Clojure Stack Templates',
@@ -15,7 +17,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: ogimage.src,
+        url: og.pathname,
         width: 1200,
         height: 630,
         alt: 'Your documentation title',
