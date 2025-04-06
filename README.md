@@ -2,7 +2,9 @@
 
 This is home repository for Clojure Stack Templates documentation:
 
-- [Clojure Stack Lite](https://stack.bogoyavlensky.com/docs/lite)
+- Clojure Stack Lite
+  - [Source](https://github.com/abogoyavlensky/clojure-stack-lite)
+  - [Docs](https://stack.bogoyavlensky.com/docs/lite)
 
 ## Development
 
