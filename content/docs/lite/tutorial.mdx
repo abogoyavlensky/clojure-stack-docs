@@ -665,6 +665,8 @@ We have a simple application that we can test. Let's start with fixing the exist
 
 Now if you run `bb test`, it should pass.
 
+### Testing list of movies
+
 We can update this test to check if we can show a movie on a page:
 
 ```clojure title="test/myproject/home_test.clj"
@@ -710,6 +712,10 @@ We can update this test to check if we can show a movie on a page:
                 // [!code highlight]
                 (butlast))))))
 ```
+
+If you run `bb test`, it should pass.
+
+### Testing movie creation
 
 Now we can add a test for creating a movie:
 
@@ -769,7 +775,7 @@ We've seen how to create a new project, start the server, and build a simple app
 We performed `POST`, `GET`, and `DELETE` requests using HTMX, with form validation and error handling.
 
 For real-world applications, you might want to add more features like user registration and authentication,
-list pagination, etc. This tutorial provides a solid foundation to build your own application.
+list pagination, etc. This tutorial provides a basic foundation to build your own application.
 
 ## Next steps
 
