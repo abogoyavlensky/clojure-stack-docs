@@ -38,5 +38,5 @@ More info read at: [https://til.simonwillison.net/sqlite/enabling-wal-mode](http
 
 ### Production
 
-When the service is deployed with Kamal the database will be created in the `db` directory in the root of your project.
+In production the database will be created in the `db` directory in the root of your project.
 This directory is mounted as a volume in the Docker container, ensuring that the database files persist even if the container is stopped or removed.

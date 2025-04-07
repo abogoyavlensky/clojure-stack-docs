@@ -3,14 +3,16 @@ title: Testing
 description: Writing tests
 ---
 
-As a test runner we use minimalistic `eftest/eftest` runner. It's very close to `clojure.test` but has a few improvements for showing the results in a more readable way.
+As a test runner we use minimalistic `eftest` runner. It's very close to `clojure.test` but has a few improvements for showing the results in a more readable way.
 There is a pre-configured testing coverage using `cloverage/cloverage`. The coverage report is generated in `target/coverage` directory.
 
-Tests are in the `test/myproject` directory. You can run them with the following command:
+You can run them with the following command:
 
 ```bash
 bb test
 ```
+
+## Integration tests
 
 `test/myproject/test_utils.clj` contains a few utility functions that are used in the tests for managing CSRF-token and cookies, and for cleaning up the database between tests.
 
@@ -28,8 +30,8 @@ For integration tests we start the system using existing fixture from `integrant
 ```
 
 Then in your tests you can have an access the system components via `reitit-extras.tests/*test-system*` dynamic variable. It contains the system map with all the components started with the `:test` profile.
-The real server and database are started, so you can test the whole stack. The database is cleaned up between tests.
+The real server and database are started, so you can test the whole stack. The database is cleaned up between tests using `myproject.test-utils/with-truncated-tables` fixture.
 
-For integration testing we have `org.clj-commons/hickory` library that parses HTML and provides a nice API for querying the DOM.
+For testing some UI parts we have `org.clj-commons/hickory` library that parses HTML and provides a nice API for querying the DOM.
 
-<Callout title="Tip" type="info">Check example at [tutorial](/docs/lite/tutorial#testing)</Callout>
+<Callout title="Tip" type="info">Please, check an example at [tutorial](/docs/lite/tutorial#testing)</Callout>
