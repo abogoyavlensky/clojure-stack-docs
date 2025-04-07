@@ -35,3 +35,8 @@ For improving SQLite performance in production there is a default migration that
 This configuration enhances performance by allowing concurrent reads and writes, while still maintaining a reasonable level of durability.
 
 More info read at: [https://til.simonwillison.net/sqlite/enabling-wal-mode](https://til.simonwillison.net/sqlite/enabling-wal-mode)
+
+### Production
+
+When the service is deployed with Kamal the database will be created in the `db` directory in the root of your project.
+This directory is mounted as a volume in the Docker container, ensuring that the database files persist even if the container is stopped or removed.
