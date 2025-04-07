@@ -19,7 +19,7 @@ gem install kamal -v 2.5.3
 
 ## Deploy from local machine using Kamal
 
-Create a `.env` file with appropriate variables for your project:
+At the root directory of your project, please create a `.env` file with appropriate variables for your project:
 
 ```bash
 SERVER_IP=192.168.0.1
@@ -29,15 +29,19 @@ APP_DOMAIN=app.domain.com
 SESSION_SECRET_KEY=secret-key
 ```
 
+<Callout title="Important" type="warn">`.env` must not be included to the system control version of your repository.</Callout>
+
 ### First deploy to a fresh server:
 
 ```shell
 bb kamal setup
 ```
 
+This first run will take some time to install Docker and other dependencies on the server.
+
 If you already have a server with Kamal installed, you can skip this step.
 
-<Callout title="Info" type="info">We run Kamal via Babashka task as we changed the default location for deployment config to `.kamal/deploy.yml` to keep deployment configs in single place.</Callout>
+<Callout title="Info" type="info">We run Kamal via Babashka task as we changed the default location for deployment config to `.kamal/deploy.yml` to keep Kamal files in single place.</Callout>
 
 ### Regular deployment
 
