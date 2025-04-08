@@ -29,9 +29,41 @@ APP_DOMAIN=app.domain.com
 SESSION_SECRET_KEY=secret-key
 ```
 
+- `SERVER_IP` is the IP address of your server.
+- `REGISTRY_USERNAME` is your GitHub username, that we will use to push the Docker image to the GitHub registry.
+- `REGISTRY_PASSWORD` is your personal access token with `write:packages` and `read:packages` scopes. You can create it in your GitHub account settings.
+- `APP_DOMAIN` is your application domain name. It will be used to generate the SSL certificate for your application and make routing at reverse proxy.
+- `SESSION_SECRET_KEY` can be any random string. It will be used to sign the session cookies.
+
 <Callout title="Important" type="warn">`.env` must not be included to the system control version of your repository.</Callout>
 
-### First deploy to a fresh server:
+### SSH access to the server from CI
+
+`SSH_PRIVATE_KEY` - an SSH private key **without password** that you should create and add the public part of it to the server's `~/.ssh/authorized_keys` to authorize from the CI worker.
+
+To generate SSH keys, run:
+
+```shell
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+As a result you will be able to deploy from GitHub Actions.
+
+
+### Create GitHub Token
+
+To create a personal access token, go to your GitHub account settings, navigate to "Developer settings" > "Personal access tokens" > "Tokens (classic)" and click on "Generate new token". Make sure to select the `write:packages` and `read:packages` scopes.
+
+![GitHub Token](@/public/lite_gh_token.png)
+
+This token you will put to `REGISTRY_USERNAME` env var **only locally**. In CI we will be using `secrets.GITHUB_TOKEN` which is automatically created by GitHub Actions for each workflow run.
+
+### First deploy to a fresh server
+
+<Callout title="Important" type="watn">
+    Before first deployment, please, update repository url in `LABEL` of your Dockerimage.
+    This is important for correct attribution of the image and ability to push image to GitHub registry from GitHub Actions using built-in GitHub Access Token from `secrets.GITHUB_TOKEN` in the CI workflow file.
+</Callout>
 
 ```shell
 bb kamal setup
@@ -42,6 +74,12 @@ This first run will take some time to install Docker and other dependencies on t
 If you already have a server with Kamal installed, you can skip this step.
 
 <Callout title="Info" type="info">We run Kamal via Babashka task as we changed the default location for deployment config to `.kamal/deploy.yml` to keep Kamal files in single place.</Callout>
+
+### GitHub Packages Registry
+
+If `LABEL` in Dockerimage was set up correctly, after first deployment you will see your image in the GitHub Packages on the repository page:
+
+![GitHub Token](@/public/lite_gh_packages.png)
 
 ### Regular deployment
 
@@ -60,12 +98,6 @@ SSH_PRIVATE_KEY=secret-ssh-key
 SESSION_SECRET_KEY=secret-key
 ```
 
-### Notes
+Then you can just push to master, or merge PR to master and GitHub Actions will automatically deploy your application to the server.
 
-- `SSH_PRIVATE_KEY` - a new SSH private key **without password** that you created and added the public part to the server's `~/.ssh/authorized_keys` to authorize from the CI worker.
-
-To generate SSH keys, run:
-
-```shell
-ssh-keygen -t ed25519 -C "your_email@example.com"
-```
+Full cycle of regular deployment from GitHub Actions should take from 2 to 3 minutes.

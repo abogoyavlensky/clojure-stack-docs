@@ -9,13 +9,14 @@ import ogimage from '@/public/og-image.png';
 export const metadata: Metadata = {
   title: 'Clojure Stack Lite',
   description: 'Documentation for Clojure Stack Lite',
+  metadataBase: new URL('https://stack.bogoyavlensky.com'),
   openGraph: {
     title: 'Clojure Stack Lite',
     description: 'Documentation for Clojure Stack Lite',
     type: 'website',
     images: [
       {
-        url: `https://stack.bogoyavlensky.com${ogimage.src}`,
+        url: ogimage.src,
         width: 1200,
         height: 630,
         alt: 'Documentation for Clojure Stack Lite',
