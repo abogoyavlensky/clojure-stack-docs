@@ -84,7 +84,7 @@ CREATE TABLE movie (
 ```
 
 Migrations are applied automatically when the system starts. To apply our new migration, run `(reset)` in the REPL.
-The database file will be created at the root directory of the project with the name `myproject.sqlite`.
+The database file will be created in the `db` directory of the project with the name `myproject.sqlite`.
 Afterward, you can connect to the database using any SQLite client (such as [TablePlus](https://tableplus.com/)) to verify that the `movie` table was created successfully:
 
 ![Movies DB table](@/public/lite_movies_db_table.png)
@@ -274,6 +274,7 @@ Now, let's define a route for this handler in our routes configuration:
   [["/" {:name ::home-page
             :get {:handler handlers/home-handler}
             :responses {200 {:body string?}}}]
+   ;...
    // [!code highlight]
    ["/movies"
     // [!code highlight]
@@ -395,7 +396,7 @@ Let's examine the key changes we've made to connect our frontend with the backen
    - `:hx-post` - Specifies the endpoint for form submission using the router to generate the correct URL
    - `:hx-target` - Targets the form itself for replacement
    - `:hx-swap` - Replaces the entire form with the response content
-   - We include a CSRF token for secure form submissions
+   - `(reitit-extras/csrf-token-html)` - A CSRF token for secure form submissions
 
 4. **Home page updates**:
    - The `home-page` function now accepts both `movies` and `router` parameters
@@ -580,7 +581,9 @@ The route we will add as a su-route for existing `/movies` route, and it will lo
 (def routes
   [; ...
    ["/movies"
-    ; ...
+    ["" {:name ::movie-list
+         :post {:handler handlers/create-movie-handler
+                :responses {200 {:body string?}}}}]
     // [!code highlight]
     ["/:id"
      // [!code highlight]
@@ -617,6 +620,8 @@ Now we can add a delete button to each row of the table. We'll use the `:hx-dele
       // [!code highlight]
       :hx-swap "outerHTML"}
      "Delete"]]])
+
+;...
 
 (defn home-page
   [{:keys [router movies]}]
@@ -663,7 +668,42 @@ We have a simple application that we can test. Let's start with fixing the exist
                 (first))))))
 ```
 
-Now if you run `bb test`, it should pass.
+Now if you run `bb test`, it should pass:
+
+```shell
+$ bb test
+Running task: test
+Loading namespaces:  (myproject.db myproject.queries myproject.views myproject.handlers myproject.routes myproject.core myproject.server)
+Test namespaces:  (myproject.home-test myproject.test-utils)
+Instrumented myproject.db
+Instrumented myproject.queries
+Instrumented myproject.views
+Instrumented myproject.handlers
+Instrumented myproject.routes
+Instrumented myproject.core
+Instrumented myproject.server
+Instrumented 7 namespaces in 3.2 seconds.
+
+1/1   100% [==================================================]  ETA: 00:00
+
+Ran 1 tests in 0.643 seconds
+1 assertion, 0 failures, 0 errors.
+Ran tests.
+
+|--------------------+---------+---------|
+|          Namespace | % Forms | % Lines |
+|--------------------+---------+---------|
+|     myproject.core |   22.22 |   66.67 |
+|       myproject.db |   89.22 |   91.30 |
+| myproject.handlers |   14.49 |   27.50 |
+|  myproject.queries |   34.69 |   46.67 |
+|   myproject.routes |   95.31 |  100.00 |
+|   myproject.server |  100.00 |  100.00 |
+|    myproject.views |   73.87 |   82.22 |
+|--------------------+---------+---------|
+|          ALL FILES |   69.68 |   73.71 |
+|--------------------+---------+---------|
+```
 
 ### Testing list of movies
 
@@ -762,11 +802,53 @@ And one for deleting a movie:
                             :from [:movie]})))))
 ```
 
-All tests should pass:
+All tests should pass and this time the coverage should higher:
 
 ```shell
-bb test
+$ bb test
+Running task: test
+Loading namespaces:  (myproject.db myproject.queries myproject.views myproject.handlers myproject.routes myproject.core myproject.server)
+Test namespaces:  (myproject.home-test myproject.test-utils)
+Instrumented myproject.db
+Instrumented myproject.queries
+Instrumented myproject.views
+Instrumented myproject.handlers
+Instrumented myproject.routes
+Instrumented myproject.core
+Instrumented myproject.server
+Instrumented 7 namespaces in 3.2 seconds.
+
+3/3   100% [==================================================]  ETA: 00:00
+
+Ran 3 tests in 0.649 seconds
+4 assertions, 0 failures, 0 errors.
+Ran tests.
+Writing HTML report to: /Users/andrew/Projects/TRASH/DEMO2/myproject/target/coverage/index.html
+
+|--------------------+---------+---------|
+|          Namespace | % Forms | % Lines |
+|--------------------+---------+---------|
+|     myproject.core |   22.22 |   66.67 |
+|       myproject.db |  100.00 |  100.00 |
+| myproject.handlers |   76.81 |   77.50 |
+|  myproject.queries |  100.00 |  100.00 |
+|   myproject.routes |   95.31 |  100.00 |
+|   myproject.server |  100.00 |  100.00 |
+|    myproject.views |   91.47 |   94.44 |
+|--------------------+---------+---------|
+|          ALL FILES |   91.43 |   92.96 |
+|--------------------+---------+---------|
 ```
+
+### Check linting and formatting
+
+After some changes, we can check if everything is still ok with our code:
+
+```shell
+bb check
+```
+
+If there are some formatting changes we can commit them.
 
 ## Summary
 
