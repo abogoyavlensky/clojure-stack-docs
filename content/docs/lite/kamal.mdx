@@ -60,8 +60,11 @@ This token you will put to `REGISTRY_USERNAME` env var **only locally**. In CI w
 
 ### First deploy to a fresh server
 
-<Callout title="Important" type="watn">
-    Before first deployment, please, update repository url in `LABEL` of your Dockerimage.
+<Callout title="Important" type="warn">
+    Before first deployment, please:
+    - update repository url in `LABEL` of your Dockerimage
+    - create your repository on GitHub (it can be empty)
+
     This is important for correct attribution of the image and ability to push image to GitHub registry from GitHub Actions using built-in GitHub Access Token from `secrets.GITHUB_TOKEN` in the CI workflow file.
 </Callout>
 
@@ -69,7 +72,17 @@ This token you will put to `REGISTRY_USERNAME` env var **only locally**. In CI w
 bb kamal setup
 ```
 
-This first run will take some time to install Docker and other dependencies on the server.
+This first run will take some time to install Docker and other dependencies on the server. If everything ok you should see the similar output at the end:
+
+```shell
+...
+  INFO [9b741bb6] Finished in 0.187 seconds with exit status 0 (successful).
+  Finished all in 210.2 seconds
+Releasing the deploy lock...
+  Finished all in 237.7 seconds
+```
+
+And the application should be available at your application domain you set in `APP_DOMAIN` env var.
 
 If you already have a server with Kamal installed, you can skip this step.
 
@@ -89,7 +102,7 @@ bb kamal deploy
 
 ## Deploy from GitHub Actions
 
-Setup secrets for Actions:
+Setup secrets for Actions at your repository settings `Settings > Secrets and variables > Actions > New repository secret`:
 
 ```shell
 SERVER_IP=192.168.0.1
@@ -98,6 +111,12 @@ SSH_PRIVATE_KEY=secret-ssh-key
 SESSION_SECRET_KEY=secret-key
 ```
 
-Then you can just push to master, or merge PR to master and GitHub Actions will automatically deploy your application to the server.
+![GitHub Token](@/public/lite_gh_secrets.png)
 
-Full cycle of regular deployment from GitHub Actions should take from 2 to 3 minutes.
+<Callout title="Tip" type="info">We use `.env` and GitHub Secrets for convenience and simplicity in the tutorial.
+The recommended approach is to fetch secrets from systems that are designed to store sensitive data.
+Read more at [Kamal documentation](https://kamal-deploy.org/docs/commands/secrets/).</Callout>
+
+Then you can just push to `master` branch, or merge PR to `master` and GitHub Actions will automatically deploy your application to the server.
+
+Full cycle of regular deployment from GitHub Actions should take between 2 and 3 minutes.
