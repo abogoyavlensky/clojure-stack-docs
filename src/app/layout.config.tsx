@@ -53,6 +53,11 @@ export const baseOptions: BaseLayoutProps = {
       //     },
       //   },
       // ],
+    },
+    {
+      text: 'Blog',
+      url: 'https://bogoyavlensky.com/',
+      active: 'nested-url',
     }
   ],
 };
