@@ -50,6 +50,42 @@ description: Detailed guide on generating project
 
    The server should be available at [http://localhost:8000](http://localhost:8000).
 
+### Use alias instead of the tool
+
+If you prefer to use deps.edn alias instead of `-Tnew` tool, you can add a new alias to your global `~/.clojure/deps.edn` file:
+
+```clojure
+{:aliases {:new-app {:extra-deps {org.clojure/clojure {:mvn/version "1.12.0"}
+                                  io.github.seancorfield/deps-new {:git/tag "v0.8.0"
+                                                                   :git/sha "2f96530"}
+                                  ; Update this to the latest version
+                                  io.github.abogoyavlensky/clojure-stack-lite {:git/tag "0.1.1"
+                                                                               :git/sha "95461b6"}}
+                     :exec-fn org.corfield.new/create
+                     :exec-args {:template io.github.abogoyavlensky/clojure-stack-lite}}}}
+```
+
+Then you can create a new project using the following command:
+
+```shell
+clojure -X:new-app :name myproject
+```
+
+This approach is also useful if you want to add your own default set of options, for example,
+you might want to create your projects always with DaisyUI included:
+
+```clojure
+{:aliases {:new-app {;...
+                     :exec-args {:template io.github.abogoyavlensky/clojure-stack-lite
+                                 :daisyui true}}}}
+```
+
+The same command will include `:daisyui` option by default:
+
+```shell
+clojure -X:new-app :name myproject
+```
+
 ## Options
 
 The template offers customization options for generating your project:
