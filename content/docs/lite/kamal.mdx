@@ -62,7 +62,7 @@ This token you will put to `REGISTRY_USERNAME` env var **only locally**. In CI w
 
 <Callout title="Important" type="warn">
     Before first deployment, please:
-    - update repository url in `LABEL` of your Dockerimage
+    - update repository url in `LABEL` of your Dockerfile
     - create your repository on GitHub (it can be empty)
 
     This is important for correct attribution of the image and ability to push image to GitHub registry from GitHub Actions using built-in GitHub Access Token from `secrets.GITHUB_TOKEN` in the CI workflow file.
@@ -90,7 +90,7 @@ If you already have a server with Kamal installed, you can skip this step.
 
 ### GitHub Packages Registry
 
-If `LABEL` in Dockerimage was set up correctly, after first deployment you will see your image in the GitHub Packages on the repository page:
+If `LABEL` in Dockerfile was set up correctly, after first deployment you will see your image in the GitHub Packages on the repository page:
 
 ![GitHub Token](@/public/lite_gh_packages.png)
 
