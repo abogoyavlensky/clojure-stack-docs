@@ -34,4 +34,12 @@ The real server and database are started, so you can test the whole stack. The d
 
 For testing some UI parts we have `org.clj-commons/hickory` library that parses HTML and provides a nice API for querying the DOM.
 
-<Callout title="Tip" type="info">Please, check an example at [tutorial](/docs/lite/tutorial#testing)</Callout>
+<Callout title="Tip" type="info">Please, check an example at the [tutorial](/docs/lite/tutorial#testing)</Callout>
+
+## Database
+
+The database is cleaned up between tests using `myproject.test-utils/with-truncated-tables` fixture. It deletes data from all the tables except migrations in the database before each test.
+
+For **SQLite** the database is stored in the memory, so it is created from scratch for each test namespace.
+For **PostgreSQL** the database is created using [Testcontainers](https://java.testcontainers.org/modules/databases/jdbc/) library with JDBC support and `TC_DAEMON=true` mode - it allows to reuse the database between tests.
+The database is running till JVM is shutdown.

@@ -52,7 +52,10 @@ Your server should now be running and available at [http://localhost:8000](http:
 
 The template offers customization options for generating your project:
 
+- `:db` - Choose between SQLite or PostgreSQL for your database (*Default: `:sqlite`*)
+    - Available values: `:sqlite` or `:postgres`
 - `:daisyui` - Include [DaisyUI](https://daisyui.com/), a component library for TailwindCSS (*Default: `false`*)
+    - Available values: `true` or `false`
 
 <Callout type="info">More info at: [Generate Project - Options](/docs/lite/generate-project#options)</Callout>
 
@@ -98,6 +101,7 @@ Your newly generated project will have the following structure:
 ├── bb.edn                 # Babashka tasks configuration for managing application
 ├── deps.edn               # Clojure dependencies and aliases
 ├── Dockerfile             # Dockerfile for building the application image
+├── docker-compose.yaml    # Run PostgreSQL database for local development (only used with PostgreSQL)
 ├── LICENSE                # License file, AGPLv3 by default, for motivation check: https://plausible.io/blog/open-source-licenses
 └── README.md              # Project documentation
 ```

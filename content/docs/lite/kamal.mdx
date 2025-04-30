@@ -35,6 +35,19 @@ SESSION_SECRET_KEY=secret-key
 - `APP_DOMAIN` is your application domain name. It will be used to generate the SSL certificate for your application and make routing at reverse proxy.
 - `SESSION_SECRET_KEY` can be any random string. It will be used to sign the session cookies.
 
+If you are using PostgreSQL you should also add:
+
+```bash
+...
+DATABASE_URL=jdbc:postgresql://myproject-db:5432/your-db-name?user=your-db-user&password=your-db-password
+POSTGRES_DB=your-db-name
+POSTGRES_USER=your-db-user
+POSTGRES_PASSWORD=your-db-password
+```
+
+- `DATABASE_URL` - the URL to connect to your PostgreSQL database, used for application. The database host must follow the pattern: `<project-name>-db`.
+- `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` - the database name, user and password for Kamal to create the database accessory.
+
 <Callout title="Important" type="warn">`.env` must not be included to the system control version of your repository.</Callout>
 
 ### SSH access to the server from CI
@@ -112,6 +125,16 @@ SESSION_SECRET_KEY=secret-key
 ```
 
 ![GitHub Token](@/public/lite_gh_secrets.png)
+
+If you are using PostgreSQL, you should also add:
+
+```bash
+...
+DATABASE_URL=jdbc:postgresql://myproject-db:5432/your-db-name?user=your-db-user&password=your-db-password
+POSTGRES_DB=your-db-name
+POSTGRES_USER=your-db-user
+POSTGRES_PASSWORD=your-db-password
+```
 
 <Callout title="Tip" type="info">We use `.env` and GitHub Secrets for convenience and simplicity in the tutorial.
 The recommended approach is to fetch secrets from systems that are designed to store sensitive data.

@@ -88,11 +88,30 @@ clojure -X:new-app :name myproject
 
 ## Options
 
-The template offers customization options for generating your project:
+The template offers customization options for generating your project.
 
-- `:daisyui` - Include [DaisyUI](https://daisyui.com/), a component library for TailwindCSS (*Default: `false`*)
+### `:db`
 
-Possible values: `false | true`
+Choose between SQLite or PostgreSQL for your database (*Default: `:sqlite`*)
+
+Available values: `:sqlite | :postgres`
+
+Usage example:
+
+```shell
+clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject :db :postgres
+```
+
+<Callout type="info">
+    For local development the [Docker](https://docs.docker.com/engine/install/) is used to run PostgreSQL database.
+</Callout>
+
+
+### `:daisyui`
+
+Include [DaisyUI](https://daisyui.com/), a component library for TailwindCSS (*Default: `false`*)
+
+Available values: `false | true`
 
 Usage example:
 

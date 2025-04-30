@@ -36,6 +36,10 @@ This configuration enhances performance by allowing concurrent reads and writes,
 
 More info read at: [https://til.simonwillison.net/sqlite/enabling-wal-mode](https://til.simonwillison.net/sqlite/enabling-wal-mode)
 
+## PostgreSQL
+
+For local development, the database is created using the `docker-compose.yaml` file in the root of your project. For tests we use [Testcontainers](https://www.testcontainers.org/) library with JDBC support and `TC_DAEMON=true` mode.
+
 ### Production
 
 In production the database will be created in the `db` directory in the root of your project.
