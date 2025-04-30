@@ -29,8 +29,8 @@ export const metadata: Metadata = {
     description: 'Documentation for Clojure Stack Lite',
   },
   keywords: ['clojure project template', 'clojure', 'clojure stack', 'template', 
-             'stack', 'lite', 'clojure-stack-lite', 'boilerplate',
-             'quickstart', 'htmx', 'sqlite', 'documentation', 'reitit', 'ring'],
+             'stack', 'lite', 'clojure-stack-lite', 'boilerplate', 'starter',
+             'quickstart', 'htmx', 'postgresql', 'sqlite', 'documentation', 'reitit', 'ring'],
   authors: [{ name: 'Clojure Stack Lite' }],
   robots: 'index, follow',
 };
