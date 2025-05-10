@@ -3,17 +3,17 @@ title: Fly.io
 description: Deploy your Clojure application with Fly.io
 ---
 
-## Deploying to Fly.io from local machine
+## Deploying to Fly.io from Local Machine
 
-Assuming you have created your application using the option `:deploy :none`, you can deploy it to [Fly.io](https://fly.io/) using the following steps:
+If you have created your application using the option `:deploy :none`, you can deploy it to [Fly.io](https://fly.io/) by following these steps:
 
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 <Steps>
 <Step>
-### Add `flyctl` system dependency
+### Add `flyctl` System Dependency
 
-Add `flyctl` to `.mise.toml` file with the latest version at the moment (or install manually):
+Add `flyctl` to the `.mise.toml` file with the latest version available (or install it manually):
 
 ```toml title=".mise.toml"
 [tools]
@@ -29,19 +29,19 @@ Then run `mise install`.
 </Step>
 
 <Step>
-### Create a new Fly.io configuration
+### Create a New Fly.io Configuration
 
-Run the following command to create a new Fly.io configuration:
+Run the following commands to create a new Fly.io configuration:
 
 ```shell
 flyctl auth login
 flyctl launch --no-deploy
 ```
 
-The command will create `fly.toml` file in the root of your project. You can edit it to set the desired configuration.
+This command will create a `fly.toml` file in the root of your project. You can edit it to set the desired configuration.
 
 #### SQLite
-If you use SQLite, you need to add a volume to the `fly.toml` file:
+If you are using SQLite, you need to add a volume to the `fly.toml` file:
 
 ```toml title="fly.toml"
 ...
@@ -57,15 +57,15 @@ If you use SQLite, you need to add a volume to the `fly.toml` file:
 
 #### PostgreSQL
 
-For PostgreSQL you have multiple options:
+For PostgreSQL, you have several options:
 
-- Use [Managed PostgreSQL](https://fly.io/docs/mpg/overview/) from Fly.io
-- Run PostgreSQL as a regular service on Fly.io
-- Use any other managed PostgreSQL service, such as [Neon](https://neon.tech/), [Supabase](https://supabase.com/), etc.
+-  Use [Managed PostgreSQL](https://fly.io/docs/mpg/overview/) from Fly.io.
+-  Run PostgreSQL as a regular service on Fly.io.
+-  Use any other managed PostgreSQL service, such as [Neon](https://neon.tech/) or [Supabase](https://supabase.com/).
 </Step>
 
 <Step>
-### Deploy your application
+### Deploy Your Application
 
 Run the following command to deploy your application:
 
@@ -75,17 +75,17 @@ flyctl deploy
 </Step>
 </Steps>
 
-## Deploying to Fly.io from Github Actions
+## Deploying to Fly.io from GitHub Actions
 
 <Steps>
 <Step>
-### Generate access token
+### Generate Access Token
 
 Generate a new access token in your [Fly.io account settings](https://fly.io/docs/security/tokens/) and add it to your repository secrets as `FLY_API_TOKEN`.
 </Step>
 
 <Step>
-Add following `.github/workflows/deploy.yml` file:
+Add the following `.github/workflows/deploy.yml` file:
 
 ```yaml title=".github/workflows/deploy.yml"
 name: Deploy
@@ -108,7 +108,7 @@ jobs:
         with:
           install_args: "flyctl"
 
-      - name: Build and deploy
+      - name: Build and Deploy
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: flyctl deploy --remote-only
@@ -116,8 +116,8 @@ jobs:
 </Step>
 
 <Step>
-### Deploy your application from GitHub Actions
+### Deploy Your Application from GitHub Actions
 
-Push your changes to the `master` branch and the deployment will be triggered automatically.
+Push your changes to the `master` branch to trigger the deployment automatically.
 </Step>
 </Steps>
