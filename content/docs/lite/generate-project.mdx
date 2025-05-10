@@ -96,7 +96,7 @@ Choose between SQLite or PostgreSQL for your database (*Default: `:sqlite`*)
 
 Available values: `:sqlite | :postgres`
 
-Usage example:
+Usage example for PostgreSQL:
 
 ```shell
 clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject :db :postgres
@@ -113,10 +113,22 @@ Include [DaisyUI](https://daisyui.com/), a component library for TailwindCSS (*D
 
 Available values: `false | true`
 
-Usage example:
+Usage example for using DaisyUI:
 
 ```shell
 clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject :daisyui true
+```
+
+### `:deploy`
+
+Choose between [Kamal](https://kamal-deploy.org/) and no deployment configuration (*Default:* `:kamal`)
+
+Available values: `:kamal | :none`
+
+Usage example for no deployment configuration:
+
+```shell
+clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject :deploy :none
 ```
 
 ## After creating a project
