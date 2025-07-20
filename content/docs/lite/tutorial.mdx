@@ -653,12 +653,8 @@ We have a simple application that we can test. Let's start with fixing the exist
 ; ...
 
 (deftest test-home-page-is-loaded-correctly
-  (let [server (::server/server ig-extras/*test-system*)
-        url (reitit-extras/get-server-url server :host)
-        body (-> (hato/get url)
-                 :body
-                 (hickory/parse)
-                 (hickory/as-hickory))]
+  (let [url (reitit-extras/get-server-url (test-utils/server) :host)
+        body (test-utils/response->hickory (http/get url))]
     // [!code highlight]
     (is (= "Movies Lite"
            (->> body
@@ -714,28 +710,20 @@ We can update this test to check if we can show a movie on a page:
 (ns myproject.home-test
   (:require ; ...
             // [!code highlight]
-            [myproject.db :as db]
-            // [!code highlight]
             [myproject.queries :as queries]
-            [myproject.server :as-alias server]
             ;...
             ))
 
 (deftest test-home-page-is-loaded-correctly
-  (let [server (::server/server ig-extras/*test-system*)
+  (let [url (reitit-extras/get-server-url (test-utils/server) :host)
         // [!code highlight]
-        db (::db/db ig-extras/*test-system*)
-        url (reitit-extras/get-server-url server :host)
-        // [!code highlight]
-        _ (queries/create-movie db {:title "The Matrix"
-                                    // [!code highlight]
-                                    :year 1999
-                                    // [!code highlight]
-                                    :director "Lana Wachowski, Lilly Wachowski"})
-        body (-> (http/get url)
-                 :body
-                 (hickory/parse)
-                 (hickory/as-hickory))]
+        _ (queries/create-movie (test-utils/db) 
+                                {:title "The Matrix"
+                                 // [!code highlight]
+                                 :year 1999
+                                 // [!code highlight]
+                                 :director "Lana Wachowski, Lilly Wachowski"})
+        body (test-utils/response->hickory (http/get url))]
     (is (= "Movies Lite"
            (->> body
                 (select/select (select/tag :h1))
@@ -762,14 +750,12 @@ Now we can add a test for creating a movie:
 
 ```clojure title="test/myproject/home_test.clj"
 (deftest test-create-movie-ok
-  (let [server (::server/server ig-extras/*test-system*)
-        db (::db/db ig-extras/*test-system*)
-        base-url (reitit-extras/get-server-url server :host)
-        url (str base-url "/movies")
-        {:keys [csrf-token cookies]} (test-utils/get-csrf-token-and-cookies base-url)]
+  (let [base-url (reitit-extras/get-server-url (test-utils/server) :host)
+        url (str base-url "/movies")]
     ; Create a new movie
-    (http/post url {:cookies cookies
-                    :form-params {test-utils/CSRF-TOKEN-KEY csrf-token
+    (http/post url {:cookies (reitit-extras/session-cookies
+                               {reitit-extras/CSRF-TOKEN-SESSION-KEY test-utils/TEST-CSRF-TOKEN})
+                    :form-params {reitit-extras/CSRF-TOKEN-FORM-KEY test-utils/TEST-CSRF-TOKEN
                                   :title "The Matrix"
                                   :year 1999
                                   :director "Lana Wachowski, Lilly Wachowski"}})
@@ -777,30 +763,29 @@ Now we can add a test for creating a movie:
     (is (= [{:director "Lana Wachowski, Lilly Wachowski"
              :title "The Matrix"
              :year 1999}]
-           (db/exec! db {:select [:title :year :director]
-                         :from [:movie]})))))
+           (db/exec! (test-utils/db) {:select [:title :year :director]
+                                      :from [:movie]})))))
 ```
 
-Notice how we get the CSRF token from the page and add it to the request header using cookies.
+Notice how we provide the testing CSRF token and add it to the request cookies.
 
 And one for deleting a movie:
 
 ```clojure title="test/myproject/home_test.clj"
 (deftest test-delete-movie-ok
-  (let [server (::server/server ig-extras/*test-system*)
-        db (::db/db ig-extras/*test-system*)
-        base-url (reitit-extras/get-server-url server :host)
-        movie (queries/create-movie db {:title "The Matrix"
-                                        :year 1999
-                                        :director "Lana Wachowski, Lilly Wachowski"})
-        url (str base-url "/movies/" (:id movie))
-        {:keys [csrf-token cookies]} (test-utils/get-csrf-token-and-cookies base-url)]
+  (let [base-url (reitit-extras/get-server-url (test-utils/server) :host)
+        movie (queries/create-movie (test-utils/db) 
+                                    {:title "The Matrix"
+                                     :year 1999
+                                     :director "Lana Wachowski, Lilly Wachowski"})
+        url (str base-url "/movies/" (:id movie))]
     ; Delete the movie
-    (http/delete url {:cookies cookies
-                      :headers {test-utils/CSRF-TOKEN-HEADER csrf-token}})
+    (http/delete url {:cookies (reitit-extras/session-cookies
+                                 {reitit-extras/CSRF-TOKEN-SESSION-KEY test-utils/TEST-CSRF-TOKEN})
+                      :headers {reitit-extras/CSRF-TOKEN-HEADER test-utils/TEST-CSRF-TOKEN}})
 
-    (is (= [] (db/exec! db {:select [:*]
-                            :from [:movie]})))))
+    (is (= [] (db/exec! (test-utils/db) {:select [:*]
+                                         :from [:movie]})))))
 ```
 
 All tests should pass and this time the coverage should higher:
