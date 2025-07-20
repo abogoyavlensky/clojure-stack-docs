@@ -55,10 +55,7 @@ After reloading the page in your browser, you'll see that the title has been upd
 The entry point of the application in production environment is `src/myproject/core.clj`. It contains a `main` function that runs the system with the production profile.
 We use Integrant as a framework for managing all components of the system. The main config file where the entire system is described lives at `resources/config.edn`.
 The core components are `db` and `server`, which are defined in `src/myproject/db.clj` and `src/myproject/server.clj` respectively.
-
-The default configuration of the server component is provided by the
-[`reitit-extras`](https://github.com/abogoyavlensky/reitit-extras) small helper library for convenience. It offers several options to extend the server configuration.
-If you need to customize or replace anything in the server configuration, you can copy the server definition from `reitit-extras` to your project.
+The default configuration of the server component contains all recommended middleware for a web application and is set to run server on port `8000`.
 
 In development mode, the entry point is `dev/user.clj`. Here we start the same system with the dev profile and an extension from `resources/config.dev.edn` that contains
 an additional component to run the `tailwindcss` CLI tool in watch mode. This automatically reloads CSS styles when files change. Since it's started as part of the application system, we don't need to

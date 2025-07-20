@@ -12,6 +12,6 @@ Routes live in the `src/myproject/routes.clj` file for convenience.
 
 ## Middlewares
 
-The project comes pre-configured with several middlewares that enhance security and provide convenient functionality. These middlewares are defined in the [`reitit-extras`](https://github.com/abogoyavlensky/reitit-extras/blob/3d3152a0d332a7dce973f91c65f4f6471b8953c5/src/reitit_extras/core.clj#L173-L203) helper library.
+The project comes pre-configured with several middlewares that enhance security and provide convenient functionality.
 Pre-configured middleware set based on the [ring-defaults](https://github.com/ring-clojure/ring-defaults).
-You can easily extend the default middleware stack with your own custom middlewares by passing the `:middlewares` option to the first argument of `reitit-extras/get-handler-ssr` in the `src/myproject/server.clj` file.
+You can easily extend the default middleware stack with your own custom middlewares in the `src/myproject/server.clj` file.
