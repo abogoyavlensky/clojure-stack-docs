@@ -272,9 +272,9 @@ Now, let's define a route for this handler in our routes configuration:
 ; ...
 
 (def routes
-  [["/" {:name ::home-page
-            :get {:handler handlers/home-handler}
-            :responses {200 {:body string?}}}]
+  [["/" {:name ::home
+         :get {:handler handlers/home-handler}
+         :responses {200 {:body string?}}}]
    ;...
    // [!code highlight]
    ["/movies"
