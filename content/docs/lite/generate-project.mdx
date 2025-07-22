@@ -131,6 +131,19 @@ Usage example for no deployment configuration:
 clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject :deploy :none
 ```
 
+### `:auth`
+
+Add authentication and registration flow (*Default: `false`*)
+
+Features included:
+ - Login, logout, registration, password reset, password change, account page
+
+Usage example for adding auth flow:
+
+```shell
+clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject :auth true
+```
+
 ## After creating a project
 
 After creating a project you will have a file structure and all configurations for starting development.
