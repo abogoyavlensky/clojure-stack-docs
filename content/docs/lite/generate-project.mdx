@@ -13,15 +13,12 @@ description: Detailed guide on generating project
 
    ```shell
    clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new && \
-   clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' \
-        -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
-   ```
-
-   If you already have Clojure CLI with Clojure `1.12.x` and `deps-new` tool, then you can just run:
-
-   ```shell
    clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
    ```
+
+   <Callout type="warn">
+     Requires Clojure CLI tools version `1.12.0.1479` or later.
+   </Callout>
 
    OR alternatively using [neil](https://github.com/babashka/neil):
 
@@ -55,7 +52,7 @@ description: Detailed guide on generating project
 If you prefer to use deps.edn alias instead of `-Tnew` tool, you can add a new alias to your global `~/.clojure/deps.edn` file:
 
 ```clojure
-{:aliases {:new-app {:extra-deps {org.clojure/clojure {:mvn/version "1.12.0"}
+{:aliases {:new-app {:extra-deps {org.clojure/clojure {:mvn/version "1.12.1"}
                                   io.github.seancorfield/deps-new {:git/tag "v0.8.0"
                                                                    :git/sha "2f96530"}
                                   ; Update this to the latest version

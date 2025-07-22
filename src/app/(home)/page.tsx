@@ -2,8 +2,7 @@ import Link from 'next/link';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 
 const usageExampleCode = `clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new && \\
-clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' \\
-    -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject`
+clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject`
 
 export default function HomePage() {
   return (

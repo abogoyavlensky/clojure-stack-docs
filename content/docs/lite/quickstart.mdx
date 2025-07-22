@@ -16,15 +16,13 @@ Replace `myproject` with your desired project name and run the following command
 
 ```shell
 clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new && \
-clojure -Sdeps '{:override-deps {org.clojure/clojure {:mvn/version "1.12.0"}}}' \
-    -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
-```
-
-If you already have Clojure CLI with Clojure `1.12.x` and the `deps-new` tool installed, you can simply run:
-
-```shell
 clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject
 ```
+
+<Callout type="warn">
+ Requires Clojure CLI tools version `1.12.0.1479` or later.
+</Callout>
+
 </Step>
 
 <Step>
