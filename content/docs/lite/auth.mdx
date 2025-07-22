@@ -1,0 +1,123 @@
+---
+title: Authentication
+description: Optional authentication and Registration flow
+---
+
+Authentication and registration flow is available as an optional feature in the template. To enable it, you need to set the `:auth true` option when creating your project.
+
+```shell
+clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name myproject :auth true
+```
+
+# Authentication & Registration System
+
+Th Clojure Stack Lite includes a complete authentication and registration system built with a streamlined user experience.
+
+## Overview
+
+The authentication system provides a full-featured user management solution including registration, login, password reset, and account management. It uses session-based authentication with CSRF protection and implements secure password handling using industry-standard algorithms.
+
+## Core Libraries
+
+- Buddy Authentication (buddy/buddy-auth, buddy/buddy-hashers, buddy/buddy-sign)
+  - Session-based authentication backend
+  - BCrypt+SHA512 password hashing 
+  - JWT token signing for password reset flows
+- Reitit - HTTP routing with middleware composition
+- Malli - Schema validation for form inputs
+- HoneySQL - SQL query building
+
+## Features
+
+### 1. User Registration
+
+- Email validation with regex pattern matching
+- Password requirements (minimum 8 characters)
+- Unique email constraint enforcement
+- Automatic password hashing on creation
+- Immediate login after successful registration
+
+### 2. User Login/Logout
+
+- Email and password authentication
+- Session management with identity storage
+- Secure password verification with error handling
+- HTMX-powered redirect responses
+
+### 3. Password Reset Flow
+
+- Email-triggered password reset requests
+- JWT tokens with 24-hour expiration 
+- Secure token validation and verification
+- Console-based email simulation (production-ready for SMTP integration)
+
+### 4. Account Management 
+
+- User account page with current information
+- Password change functionality
+- Current password verification
+- Prevention of password reuse
+- Password confirmation validation
+
+
+  Route Structure
+
+  Public Routes (with redirect middleware)
+
+  ["/auth"
+   {:middleware [[auth-middleware/wrap-authentication auth-backend]
+                 wrap-already-logged-in]}
+   ["/register" {...}]
+   ["/login" {...}]
+   ["/forgot-password" {...}]
+   ["/reset-password" {...}]]
+
+  Protected Routes (require authentication)
+
+  ["/account"
+   {:middleware [[auth-middleware/wrap-authentication auth-backend]
+                 wrap-login-required]}
+   ["" {:name ::account ...}]
+   ["/change-password" {...}]]
+
+  Testing Strategy
+
+  Comprehensive Test Coverage
+
+  - Registration tests: Valid registration, duplicate emails, validation errors
+  - Login tests: Successful auth, invalid credentials, form validation
+  - Password reset tests: Token generation, validation, expiration
+  - Account management tests: Password changes, validation rules
+
+  Test Infrastructure
+
+  - HTTP client testing with clj-http
+  - HTML parsing with Hickory for form validation
+  - Database state management with transaction rollbacks
+  - CSRF token simulation for form submissions
+
+  Development Notes
+
+  Email Integration
+
+  The password reset system currently prints reset links to the console. For production deployment:
+
+  1. Replace send-email! function in src/myproject/auth/handlers.clj:195
+  2. Integrate with email service (SendGrid, Mailgun, etc.)
+  3. Configure SMTP settings in application config
+
+  Customization Points
+
+  1. Password Requirements: Modify validation in src/myproject/routes.clj:50,88
+  2. Token Expiration: Adjust JWT expiration in src/myproject/auth/handlers.clj:54
+  3. UI Styling: Customize forms in src/myproject/auth/views.clj
+  4. Database Schema: Add fields via new migrations in resources/migrations/
+
+  Security Considerations
+
+  - Session secrets should be environment-specific and secure
+  - Consider implementing rate limiting for auth endpoints
+  - JWT tokens are single-use for password resets
+  - All password operations use constant-time comparison
+
+  This authentication system provides a solid foundation for web applications requiring user management with modern security practices and excellent user experience.
