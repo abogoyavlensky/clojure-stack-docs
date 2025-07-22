@@ -11,11 +11,11 @@ clojure -Tnew create :template io.github.abogoyavlensky/clojure-stack-lite :name
 
 # Authentication & Registration System
 
-Th Clojure Stack Lite includes a complete authentication and registration system built with a streamlined user experience.
+The Clojure Stack Lite includes a complete authentication and registration system built with a streamlined user experience.
 
 ## Overview
 
-The authentication system provides a full-featured user management solution including registration, login, password reset, and account management. It uses session-based authentication with CSRF protection and implements secure password handling using industry-standard algorithms.
+The authentication system provides a full-featured user management solution including registration, login, logout, password reset, password change, and account management. It uses session-based authentication with CSRF protection and implements secure password handling using industry-standard algorithms.
 
 ## Core Libraries
 
@@ -62,42 +62,16 @@ The authentication system provides a full-featured user management solution incl
 
 ## Route Structure
 
-### Public Routes (with redirect middleware)
-
 ```clojure
-["/auth"
- {:middleware [[auth-middleware/wrap-authentication auth-backend]
-               wrap-already-logged-in]}
- ["/register" {...}]
- ["/login" {...}]
- ["/forgot-password" {...}]
- ["/reset-password" {...}]]
+[["/auth"
+  ["/register" {...}]
+  ["/login" {...}]
+  ["/forgot-password" {...}]
+  ["/reset-password" {...}]
+  ["/logout" {...}]]
+ ["/account"
+  ["/change-password" {...}]]]
 ```
-
-### Protected Routes (require authentication)
-
-```clojure
-["/account"
- {:middleware [[auth-middleware/wrap-authentication auth-backend]
-               wrap-login-required]}
- ["" {:name ::account ...}]
- ["/change-password" {...}]]
-```
-
-## Testing Strategy
-
-### Comprehensive Test Coverage
-
-- Registration tests: Valid registration, duplicate emails, validation errors
-- Login tests: Successful auth, invalid credentials, form validation
-- Password reset tests: Token generation, validation, expiration
-- Account management tests: Password changes, validation rules
-
-### Test Infrastructure
-
-- HTTP client testing with clj-http
-- HTML parsing with Hickory for form validation
-- CSRF token simulation for form submissions
 
 ## Development Notes
 
@@ -120,7 +94,7 @@ The password reset system currently prints reset links to the console. For produ
 
 - Session secrets should be environment-specific and secure
 - Consider implementing rate limiting for auth endpoints
-- JWT tokens are single-use for password resets
+- JWT tokens are time-limited for password resets
 - All password operations use constant-time comparison
 
 This authentication system provides a solid foundation for web applications requiring user management with modern security practices and excellent user experience.

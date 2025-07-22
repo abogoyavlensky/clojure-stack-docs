@@ -103,7 +103,6 @@ At the bottom of the table, there's a form for adding new movies.
 Our `home-page` function and additional functions will look like:
 
 ```clojure title="src/myproject/views.clj"
-; ...
 (defn list-item
   [{:keys [movie]}]
   [:tr
@@ -177,7 +176,6 @@ We've separated the list item, form, and form inputs into individual components 
 Now, let's update our `home-handler` to pass some sample data for `movies` to display on the page:
 
 ```clojure title="src/myproject/handlers.clj"
-; ...
 (defn home-handler
   [_]
   (-> {:movies [{:title "Movie 1"
@@ -283,19 +281,25 @@ Now, let's define a route for this handler in our routes configuration:
          // [!code highlight]
          :post {:handler handlers/create-movie-handler
                 // [!code highlight]
+                :parameters {:form [:map
+                                    // [!code highlight]
+                                    [:title [:string {:min 1}]]
+                                    // [!code highlight]
+                                    [:year pos-int?]
+                                    // [!code highlight]
+                                    [:director [:string {:min 1}]]]}
                 :responses {200 {:body string?}}}}]]])
 ```
 
 <Callout type="info">
- We're intentionally not adding a schema for request parameters in the route definition. Instead, we'll validate parameters directly in the handler (in a later section). This approach gives us more flexibility to return validation errors as part of the HTML response.
- 
- We retrieve parameters from the `params` key of the request, which is provided by the [`wrap-nested-params`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L186-L187) middleware, rather than using the [`parameters-middleware`](https://github.com/abogoyavlensky/reitit-extras/blob/32bde6d826603a3a0084d3266c5b936e7b802562/src/reitit_extras/core.clj#L184).
+We've set up a [`reitit-extras/non-throwing-coerce-request-middleware`](https://github.com/abogoyavlensky/reitit-extras/blob/63fca465b026938c4fadf56671325c8acf95f2a3/src/reitit_extras/core.clj#L158-L194)
+to the server, which doesn't throw an exception if the request parameters are not valid. Instead, it adds `:errors` key to the request map with validation errors.
+So, we can handle them in our handler and return a proper response with validation errors in HTML.
 </Callout>
 
 Finally, we need to update our home page handler to fetch movies from the database instead of using static data:
 
 ```clj title="src/myproject/handlers.clj"
-;...
 (defn home-handler
   // [!code highlight]
   [{:keys [context]
@@ -307,7 +311,6 @@ Finally, we need to update our home page handler to fetch movies from the databa
        :movies (queries/get-movie-list (:db context))}
       (views/home-page)
       (reitit-extras/render-html)))
-;...
 ```
 
 ### Frontend Implementation
@@ -415,78 +418,35 @@ Now, after reloading the system in the REPL with `(reset)`, we should be able to
 
 ## Form Validation
 
-Our form can create a movie, but what happens if a user doesn't fill in required fields? Without validation, we'd store empty values to the database. Let's implement proper validation to provide a better user experience.
-
-We'll add parameter validation before inserting data into the database and display user-friendly error messages on the page.
-
-Typically, we would define parameter validation as part of the router using Malli schemas. However, to return custom HTML with validation messages directly in the form, we'll implement validation in the handler instead.
+Our form can create a movie, but what happens if a user doesn't fill in required fields? Without validation, we'd store empty values to the database. Let's implement proper validation and error handling to provide a better user experience.
 
 ```clojure title="src/myproject/handlers.clj"
-(ns myproject.handlers
-            // [!code highlight]
-  (:require [malli.core :as m]
-            // [!code highlight]
-            [malli.error :as me]
-            // [!code highlight]
-            [malli.transform :as mt]
-            [myproject.queries :as queries]
-            [myproject.views :as views]
-            [reitit-extras.core :as reitit-extras]
-            [ring.util.response :as response]))
-
-// [!code highlight]
-(defn validate-params!
-  // [!code highlight]
-  "Validate router parameters and return human-readable errors."
-  // [!code highlight]
-  [schema data]
-  // [!code highlight]
-  (try
-    // [!code highlight]
-    (m/coerce schema data (mt/transformer mt/strip-extra-keys-transformer
-                                          // [!code highlight]
-                                          mt/string-transformer))
-    // [!code highlight]
-    (catch Exception e
-      // [!code highlight]
-      {:errors (-> e (ex-data) :data :explain me/humanize)})))
-
-
 (defn create-movie-handler
   "Render a new table item with newly created movie or return validation errors."
   [{router :reitit.core/router
-    :keys [context params]}]
+    :keys [context params errors parameters]}]
   // [!code highlight]
-  (let [validated-params (validate-params! [:map
-                                            // [!code highlight]
-                                            [:title [:string {:min 1}]]
-                                            // [!code highlight]
-                                            [:year pos-int?]
-                                            // [!code highlight]
-                                            [:director [:string {:min 1}]]]
-                                           // [!code highlight]
-                                           params)]
+  (if (seq errors)
     // [!code highlight]
-    (if (seq (:errors validated-params))
-      // [!code highlight]
-      (-> {:router router
-           // [!code highlight]
-           :errors (:errors validated-params)
-           // [!code highlight]
-           :params params}
-          // [!code highlight]
-          (views/form)
-          // [!code highlight]
-          (reitit-extras/render-html))
-      (-> (list
-            (views/form {:router router})
-            [:template
-             [:tbody
-              {:hx-swap-oob "beforeend:#table-content"}
-              (views/list-item {:router router
-                                :movie (queries/create-movie (:db context) validated-params)})]])
-          (reitit-extras/render-html)
-          (response/header "Content-Type" "text/html")))))
+    (-> {:router router
+         // [!code highlight]
+         :errors (:humanized errors)
+         // [!code highlight]
+         :params params}
+        // [!code highlight]
+        (views/form)
+        // [!code highlight]
+        (reitit-extras/render-html))
+    (-> (list
+          (views/form {:router router})
+          [:template
+           [:tbody
+            {:hx-swap-oob "beforeend:#table-content"}
+            (views/list-item {:router router
+                              // [!code highlight]
+                              :movie (queries/create-movie (:db context) (:form parameters))})]])
+        (reitit-extras/render-html)
+        (response/header "Content-Type" "text/html"))))
 ```
 
 Now let's update our frontend components to display validation errors. We'll modify both the `form-input` and `form` components to handle and display error messages.  
@@ -559,7 +519,6 @@ This approach provides immediate feedback to users without page refreshes, creat
 To delete a movie, let's add a query, handler, and route for it.
 
 ```clojure title="src/myproject/queries.clj"
-;...
 (defn delete-movie
   [db {:keys [id]}]
   (db/exec-one! db {:delete-from :movie
@@ -568,7 +527,6 @@ To delete a movie, let's add a query, handler, and route for it.
 ```
 
 ```clojure title="src/myproject/handlers.clj"
-; ...
 (defn delete-movie-handler
   [{:keys [context parameters]}]
   (queries/delete-movie (:db context) {:id (get-in parameters [:path :id])})
@@ -582,9 +540,7 @@ The route we will add as a su-route for existing `/movies` route, and it will lo
 (def routes
   [; ...
    ["/movies"
-    ["" {:name ::movie-list
-         :post {:handler handlers/create-movie-handler
-                :responses {200 {:body string?}}}}]
+    ;...
     // [!code highlight]
     ["/:id"
      // [!code highlight]
@@ -749,12 +705,22 @@ If you run `bb test`, it should pass.
 Now we can add a test for creating a movie:
 
 ```clojure title="test/myproject/home_test.clj"
+(ns myproject.home-test
+  (:require ; ...
+            // [!code highlight]
+            [myproject.db :as db]
+            ;...
+            ))
+
+;...
+
 (deftest test-create-movie-ok
   (let [base-url (reitit-extras/get-server-url (test-utils/server) :host)
         url (str base-url "/movies")]
     ; Create a new movie
     (http/post url {:cookies (reitit-extras/session-cookies
-                               {reitit-extras/CSRF-TOKEN-SESSION-KEY test-utils/TEST-CSRF-TOKEN})
+                               {reitit-extras/CSRF-TOKEN-SESSION-KEY test-utils/TEST-CSRF-TOKEN}
+                               test-utils/TEST-SECRET-KEY)
                     :form-params {reitit-extras/CSRF-TOKEN-FORM-KEY test-utils/TEST-CSRF-TOKEN
                                   :title "The Matrix"
                                   :year 1999
@@ -781,7 +747,8 @@ And one for deleting a movie:
         url (str base-url "/movies/" (:id movie))]
     ; Delete the movie
     (http/delete url {:cookies (reitit-extras/session-cookies
-                                 {reitit-extras/CSRF-TOKEN-SESSION-KEY test-utils/TEST-CSRF-TOKEN})
+                                 {reitit-extras/CSRF-TOKEN-SESSION-KEY test-utils/TEST-CSRF-TOKEN}
+                                 test-utils/TEST-SECRET-KEY)
                       :headers {reitit-extras/CSRF-TOKEN-HEADER test-utils/TEST-CSRF-TOKEN}})
 
     (is (= [] (db/exec! (test-utils/db) {:select [:*]
