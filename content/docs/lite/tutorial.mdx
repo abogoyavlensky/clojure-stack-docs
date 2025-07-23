@@ -188,7 +188,7 @@ Now, let's update our `home-handler` to pass some sample data for `movies` to di
       (reitit-extras/render-html)))
 ```
 
-After running `(reset)` in the REPL and refreshing page in the browser it will look like:
+After running `(reset)` in the REPL and refreshing the page in the browser, it will look like:
 
 ![Page layout](@/public/lite_page_layout.png)
 
@@ -533,7 +533,7 @@ To delete a movie, let's add a query, handler, and route for it.
   (response/response nil))
 ```
 
-The route we will add as a su-route for existing `/movies` route, and it will look like this:
+The route we will add as a sub-route for the existing `/movies` route, and it will look like this:
 
 ```clojure title="src/myproject/routes.clj"
 ;...
@@ -755,7 +755,7 @@ And one for deleting a movie:
                                          :from [:movie]})))))
 ```
 
-All tests should pass and this time the coverage should higher:
+All tests should pass and this time the coverage should be higher:
 
 ```shell
 $ bb test
@@ -824,6 +824,6 @@ import { Rocket, BookOpenText } from 'lucide-react';
       Deploy your application to production with Kamal
     </Card>
     <Card title="Local Development" href="/docs/lite/local-development" icon={<BookOpenText />}>
-      Learn how to setup local development environment
+      Learn how to set up local development environment
     </Card>
 </Cards>
