@@ -16,20 +16,20 @@ bb test
 
 `test/myproject/test_utils.clj` contains a few utility functions that are used in the tests for managing test system, and for cleaning up the database between tests.
 
-For integration tests we start the system using existing fixture from `integrant-extras` library:
+For integration tests we start the system using existing fixture:
 
 ```clojure
 (ns myproject.home-test
   (:require ;...
-            [reitit-extras.tests :as reitit-extras]))
+            [myproject.test-utils :as test-utils]))
 
 (use-fixtures :once
-  (ig-extras/with-system))
+  (test-utils/with-system))
 
 ;...
 ```
 
-Then in your tests you can have an access the system components via `reitit-extras.tests/*test-system*` dynamic variable. It contains the system map with all the components started with the `:test` profile.
+Then in your tests you can have an access the system components via `myproject.test-utils/*test-system*` dynamic variable. It contains the system map with all the components started with the `:test` profile.
 The real server and database are started, so you can test the whole stack. The database is cleaned up between tests using `myproject.test-utils/with-truncated-tables` fixture.
 
 For testing some UI parts we have `org.clj-commons/hickory` library that parses HTML and provides a nice API for querying the DOM.
